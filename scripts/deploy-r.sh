@@ -109,3 +109,4 @@ fi
   # url=http://"$NODES":"$NODEPORT"
   # short_url=$(curl -s http://tinyurl.com/api-create.php?url=${url})
   # echo "Short URL is : ${short_url}"
+#
