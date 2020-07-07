@@ -98,10 +98,10 @@ kubectl delete -n default deployment "$git_repo"
 ############################################################################
 # Get details of the Service deployment  kubectl                           #
 ############################################################################
-  ibmcloud ks cluster ls
-  kubectl describe deployments x86-r-z-appln
+  #ibmcloud ks cluster ls
+  #kubectl describe deployments x86-r-z-appln
   ibmcloud ks worker ls --cluster zcluster2
-  kubectl describe service "$git_repo"-node
+  kubectl describe service "$git_repo"
 ############################################################################
 # Create Short url from Node/Node-port                                     #
 ############################################################################

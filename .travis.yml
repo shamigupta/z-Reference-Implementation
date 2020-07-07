@@ -29,7 +29,7 @@ deploy:
   on:
     branch: master
 after_deploy:
-- NODEPORT=$(kubectl get -o jsonpath="{.spec.ports[0].nodePort}" services "$git_repo"-node)
+- NODEPORT=$(kubectl get -o jsonpath="{.spec.ports[0].nodePort}" services "$git_repo")
 - NODES=$(kubectl get nodes -o jsonpath='{ $.items[*].status.addresses[?(@.type=="ExternalIP")].address}')
 - export url=http://"$NODES":"$NODEPORT"
 - export short_url=$(curl -s http://tinyurl.com/api-create.php?url=${url})
