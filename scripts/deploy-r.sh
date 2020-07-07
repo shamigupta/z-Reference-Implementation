@@ -93,7 +93,7 @@ kubectl delete -n default deployment "$git_repo"
 
 #
   echo "Run Deployment/Service Start"
-  kubectl expose deployment.apps/"$git_repo" --type=NodePort --name="$git_repo" --port="$port_range"
+  kubectl expose deployment/"$git_repo" --type=NodePort --name="$git_repo" --port="$port_range"
   echo "Run Deployment/Service End"
 ############################################################################
 # Get details of the Service deployment  kubectl                           #
