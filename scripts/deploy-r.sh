@@ -10,7 +10,7 @@ export port_range=1240,8000
 ############################################################################
 echo "Docker Push Images"
 docker push "$DOCKER_USERNAME"/$git_repo:$TRAVIS_BRANCH-$DEPLOY_TIMESTAMP-$TRAVIS_BUILD_NUMBER
-docker push "$DOCKER_USERNAME"/$git_repo:latest
+#SGdocker push "$DOCKER_USERNAME"/$git_repo:latest
 ############################################################################
 # Log into the IBM Cloud environment using apikey                          #
 ############################################################################
@@ -23,26 +23,26 @@ fi
 ############################################################################
 # Log into the IBM Cloud container registry                                #
 ############################################################################
-echo "Logging into IBM Cloud container registry"
-ibmcloud cr login
-if [ $? -ne 0 ]; then
-  echo "Failed to authenticate to IBM Cloud container registry"
-  exit 1
-fi
+#SGecho "Logging into IBM Cloud container registry"
+#SGibmcloud cr login
+#SGif [ $? -ne 0 ]; then
+#SG  echo "Failed to authenticate to IBM Cloud container registry"
+#SG  exit 1
+#SGfi
 ############################################################################
 # If the image exists in the container registry then delete it             #
 # then recreate it                                                         #
 ############################################################################
-echo "looking to see if the name-space exists"
-ibmcloud cr namespace-list | grep "$icp_name"
-if [ $? -ne 0 ]; then
-  echo "Name-space not exist in IBM Cloud container registry, Adding them now"
-  ibmcloud cr namespace-add "$icp_name"
-else
-  echo "Name-space exist in IBM Cloud container registry, Deleting and Adding them now"
-  ibmcloud cr namespace-rm "$icp_name" -f
-  ibmcloud cr namespace-add "$icp_name"
-fi
+#SGecho "looking to see if the name-space exists"
+#SGibmcloud cr namespace-list | grep "$icp_name"
+#SGif [ $? -ne 0 ]; then
+#SG  echo "Name-space not exist in IBM Cloud container registry, Adding them now"
+#SG  ibmcloud cr namespace-add "$icp_name"
+#SGelse
+#SG  echo "Name-space exist in IBM Cloud container registry, Deleting and Adding them now"
+#SG  ibmcloud cr namespace-rm "$icp_name" -f
+#SG  ibmcloud cr namespace-add "$icp_name"
+#SGfi
 ############################################################################
 # Build image with dockerfile in Cloud Registry                            #
 # It can be either from IBM Cloud or Docker, use accordingly               #
@@ -52,15 +52,15 @@ fi
 ############################################################################
 # Log into the IBM Cloud container registry                                #
 ############################################################################
-echo "Logging into IBM Cloud container registry"
-ibmcloud cr login
-if [ $? -ne 0 ]; then
-  echo "Failed to authenticate to IBM Cloud container registry"
-  exit 1
-fi
+#SGecho "Logging into IBM Cloud container registry"
+#SGibmcloud cr login
+#SGif [ $? -ne 0 ]; then
+#SG  echo "Failed to authenticate to IBM Cloud container registry"
+#SG  exit 1
+#SGfi
 #ibmcloud cr build --tag us.icr.io/"$icp_name"/"$git_repo" ./
-docker tag $git_repo us.icr.io/"$icp_name"/"$git_repo"
-docker push us.icr.io/"$icp_name"/"$git_repo"
+#SGdocker tag $git_repo us.icr.io/"$icp_name"/"$git_repo"
+#SGdocker push us.icr.io/"$icp_name"/"$git_repo"
 ############################################################################
 # Start the deployment details using kubectl                               #
 ############################################################################
@@ -71,23 +71,26 @@ echo 'Deleting the deployment' $git_repo
 kubectl delete -n default pod "$git_repo"
 kubectl delete -n default deployment "$git_repo" 
 #
-if [ $? -ne 0 ]; then
-  echo "Deployment does not exist in IBM Cloud container registry, Adding them now"
-  kubectl create deployment $git_repo --image=us.icr.io/"$icp_name"/"$git_repo" 
-  kubectl run $git_repo --image=us.icr.io/"$icp_name"/"$git_repo"
-else
-  echo "Deployment does exist in IBM Cloud container registry, Adding them now as deleted"
-  kubectl create deployment $git_repo --image=us.icr.io/"$icp_name"/"$git_repo" 
-  echo "Run Deployment Start"
-  kubectl run $git_repo --image=us.icr.io/"$icp_name"/"$git_repo"
-  echo "Run Deployment Ends"
-fi
+#SGif [ $? -ne 0 ]; then
+#SG  echo "Deployment does not exist in IBM Cloud container registry, Adding them now"
+#SG  kubectl create deployment $git_repo --image=us.icr.io/"$icp_name"/"$git_repo" 
+#SG  kubectl run $git_repo --image=us.icr.io/"$icp_name"/"$git_repo"
+#SGelse
+#SG  echo "Deployment does exist in IBM Cloud container registry, Adding them now as deleted"
+#SG  kubectl create deployment $git_repo --image=us.icr.io/"$icp_name"/"$git_repo" 
+#SG  echo "Run Deployment Start"
+#SG  kubectl run $git_repo --image=us.icr.io/"$icp_name"/"$git_repo"
+#SG  echo "Run Deployment Ends"
+#SGfi
 ############################################################################
 # Start the Service deployment details using kubectl                       #
 ############################################################################
 
    echo 'Service deployment delete Start'
    kubectl delete -n default service "$git_repo"-node
+   
+   kubectl run $git_repo --image=docker.io/"$DOCKER_USERNAME"/$git_repo:$TRAVIS_BRANCH-$DEPLOY_TIMESTAMP-$TRAVIS_BUILD_NUMBER
+
 #
   echo "Run Deployment/Service Start"
   kubectl expose deployment.apps/"$git_repo" --type=NodePort --name="$git_repo"-node --port="$port_range"
