@@ -87,7 +87,7 @@ kubectl delete -n default deployment "$git_repo"
 ############################################################################
 
    echo 'Service deployment delete Start'
-   kubectl delete -n default service "$git_repo"-node
+   kubectl delete -n default service "$git_repo"
    
    kubectl run $git_repo --image=docker.io/"$DOCKER_USERNAME"/$git_repo:$TRAVIS_BRANCH-$DEPLOY_TIMESTAMP-$TRAVIS_BUILD_NUMBER
 
