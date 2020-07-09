@@ -66,7 +66,7 @@ fi
 ############################################################################
 ibmcloud ks cluster config --cluster zcluster2
 #kubectl config current-context
-ibmcloud ks cluster config zcluster2
+#ibmcloud ks cluster config zcluster2
 
 echo 'Deleting the deployment' $git_repo
 kubectl delete pod "$git_repo"
