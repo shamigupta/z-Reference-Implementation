@@ -91,8 +91,8 @@ echo 'Delete Old Deployment End'
 ############################################################################
 
    
-   echo 'Create Deployment Start docker.io/' "$DOCKER_USERNAME"'/'$git_repo':'$TRAVIS_BRANCH'-'$DEPLOY_TIMESTAMP'-'$TRAVIS_BUILD_NUMBER
-   kubectl run $git_repo --image=docker.io/"$DOCKER_USERNAME"/$git_repo:$TRAVIS_BRANCH-$DEPLOY_TIMESTAMP-$TRAVIS_BUILD_NUMBER
+   echo 'Create Deployment Start docker.io/'"$DOCKER_USERNAME"'/'$git_repo':'$TRAVIS_BRANCH'-'$DEPLOY_TIMESTAMP'-'$TRAVIS_BUILD_NUMBER
+   kubectl run $git_repo --image=docker.io/"$DOCKER_USERNAME"/"$git_repo":"$TRAVIS_BRANCH"-"$DEPLOY_TIMESTAMP"-"$TRAVIS_BUILD_NUMBER"
    echo 'Create Deployment End'
 #
   echo "Run Deployment/Service Start"
