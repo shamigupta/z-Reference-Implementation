@@ -65,12 +65,13 @@ fi
 # Start the deployment details using kubectl                               #
 ############################################################################
 ibmcloud ks cluster config --cluster zcluster2
-kubectl config current-context
-#
+#kubectl config current-context
+ibmcloud ks cluster config zcluster2
+
 echo 'Deleting the deployment' $git_repo
 kubectl delete pod "$git_repo"
-kubectl delete deployment "$git_repo" 
-kubectl delete service "$git_repo"
+#kubectl delete deployment "$git_repo" 
+#kubectl delete service "$git_repo"
 echo 'Delete Old Deployment End'
 
 #
