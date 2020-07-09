@@ -70,8 +70,8 @@ ibmcloud ks cluster config --cluster zcluster2
 
 echo 'Deleting the deployment' $git_repo
 kubectl delete pod "$git_repo"
-#kubectl delete deployment "$git_repo" 
-#kubectl delete service "$git_repo"
+kubectl delete service "$git_repo"
+kubectl delete deployment "$git_repo" 
 echo 'Delete Old Deployment End'
 
 #
