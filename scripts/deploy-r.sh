@@ -68,8 +68,11 @@ ibmcloud ks cluster config --cluster zcluster2
 kubectl config current-context
 #
 echo 'Deleting the deployment' $git_repo
-kubectl delete -n default pod "$git_repo"
-kubectl delete -n default deployment "$git_repo" 
+kubectl delete pod "$git_repo"
+kubectl delete deployment "$git_repo" 
+kubectl delete service "$git_repo"
+echo 'Delete Old Deployment End'
+
 #
 #SGif [ $? -ne 0 ]; then
 #SG  echo "Deployment does not exist in IBM Cloud container registry, Adding them now"
@@ -86,16 +89,13 @@ kubectl delete -n default deployment "$git_repo"
 # Start the Service deployment details using kubectl                       #
 ############################################################################
 
-   echo 'Service deployment delete Start'
-   kubectl delete -n default service "$git_repo"
-   echo 'Service deployment delete Start'
    
-   echo 'Create Deployment Start docker.io/' "$DOCKER_USERNAME" '/' $git_repo ':' $TRAVIS_BRANCH '-' $DEPLOY_TIMESTAMP '-' $TRAVIS_BUILD_NUMBER
+   echo 'Create Deployment Start docker.io/' "$DOCKER_USERNAME"'/'$git_repo':'$TRAVIS_BRANCH'-'$DEPLOY_TIMESTAMP'-'$TRAVIS_BUILD_NUMBER
    kubectl run $git_repo --image=docker.io/"$DOCKER_USERNAME"/$git_repo:$TRAVIS_BRANCH-$DEPLOY_TIMESTAMP-$TRAVIS_BUILD_NUMBER
    echo 'Create Deployment End'
 #
   echo "Run Deployment/Service Start"
-  kubectl expose pod/"$git_repo" --type=NodePort --name="$git_repo" --port="$port_range"
+  kubectl expose deployment/"$git_repo" --type=NodePort --name="$git_repo" --port="$port_range"
   echo "Run Deployment/Service End"
 ############################################################################
 # Get details of the Service deployment  kubectl                           #
