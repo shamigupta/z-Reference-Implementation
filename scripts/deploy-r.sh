@@ -10,7 +10,7 @@ export port_range=1240,8000
 ############################################################################
 echo "Docker Push Images"
 docker push "$DOCKER_USERNAME"/$git_repo:$TRAVIS_BRANCH-$DEPLOY_TIMESTAMP-$TRAVIS_BUILD_NUMBER
-docker push "$DOCKER_USERNAME"/$git_repo:latest
+#docker push "$DOCKER_USERNAME"/$git_repo:latest
 ############################################################################
 # Log into the IBM Cloud environment using apikey                          #
 ############################################################################
@@ -92,8 +92,11 @@ echo 'Delete Old Deployment End'
 
    
    echo 'Create Deployment Start docker.io/'"$DOCKER_USERNAME"'/'$git_repo':'$TRAVIS_BRANCH'-'$DEPLOY_TIMESTAMP'-'$TRAVIS_BUILD_NUMBER
-   kubectl create deployment $git_repo --image="$DOCKER_USERNAME"/$git_repo:latest
-   kubectl run $git_repo --image="$DOCKER_USERNAME"/$git_repo:latest
+   #kubectl create deployment $git_repo --image="$DOCKER_USERNAME"/$git_repo:latest
+   #kubectl run $git_repo --image="$DOCKER_USERNAME"/$git_repo:latest
+   kubectl create deployment $git_repo --image="$DOCKER_USERNAME"/$git_repo:$TRAVIS_BRANCH-$DEPLOY_TIMESTAMP-$TRAVIS_BUILD_NUMBER
+   kubectl run $git_repo --image="$DOCKER_USERNAME"/$git_repo:$TRAVIS_BRANCH-$DEPLOY_TIMESTAMP-$TRAVIS_BUILD_NUMBER
+
    echo 'Create Deployment End'
 #
   echo "Run Deployment/Service Start"
