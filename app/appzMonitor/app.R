@@ -892,6 +892,9 @@ server <- shinyServer(function(input, output, session) {
           var row = sel[0].row;
           var selectnamedata = data.getValue(row,0);
           Shiny.onInputChange('selected_step',selectnamedata);"
+          if(length(unique(statdata$StepName)) !=  nrow(statdata)){
+            statdata$StepName <<- paste(statdata$StepName,"@",row.names(statdata),sep="")
+          }
           mystatdata <- statdata[,c(1,4,5)]
           jstat <-  plot_ly(
             x = factor(statdata$StepName,levels = statdata$StepName),

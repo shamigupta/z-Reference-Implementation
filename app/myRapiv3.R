@@ -76,7 +76,7 @@ function(myquerry) {
   .jaddClassPath( "\\jdbc\\db2jcc.jar" )
   driver <- JDBC("com.ibm.db2.jcc.DB2Driver",Sys.glob("\\jdbc\\*.jar"))
   #print(myquerry)
-  conn = conn = dbConnect(driver,"jdbc:db2://192.86.33.143:5035/DALLASB", user="ashissa", password="A9SHISAH", ":memory:")
+  conn = conn = dbConnect(driver,"jdbc:db2://192.86.33.143:5040/DALLASC", user="ashissa", password="A9SHISAH", ":memory:")
   if (tolower(str_extract(myquerry, '\\w*')) != "select") {
     result = dbSendUpdate(conn, myquerry)
     dbCommit(conn)

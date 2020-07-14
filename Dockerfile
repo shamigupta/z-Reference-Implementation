@@ -15,6 +15,7 @@ EXPOSE 1240 8000
 # Copy further configuration files into the Docker image
 COPY /supervisord.conf /etc/
 RUN mkdir -p /var/log/supervisord/
-WORKDIR /srv/shiny-server/
+RUN chmod -R 777 /var/log/supervisord/
+#WORKDIR /srv/shiny-server/
 #
 ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
