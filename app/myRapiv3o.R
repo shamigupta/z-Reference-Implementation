@@ -35,8 +35,8 @@ function(a, b){
 function(myquerry) {
   .jaddClassPath( "\\jdbc\\dv-jdbc-3.1.jar" )
   driver <- JDBC("com.rs.jdbc.dv.DvDriver",Sys.glob("\\jdbc\\*.jar"))
-  #print(myquerry)
-  conn = dbConnect(driver,"jdbc:rs:dv://192.86.33.143:1200;DatabaseType=DVS; user=ashissa, password=73e613cc896030ac3e  ", user="ashissa", password="73e613cc896030ac3e")
+  readRenviron(".env")
+  conn = dbConnect(driver,paste("jdbc:rs:",gsub("http:","dv:",Sys.getenv("MainframeIP")),":",Sys.getenv("zDVMPort"),";DatabaseType=DVS; user=",Sys.getenv("zDVMuserID"),", password=",Sys.getenv("zDVMpassword"),sep=""), user=Sys.getenv("zDVMuserID"), password=Sys.getenv("zDVMpassword"))
   result <- dbFetch(dbSendQuery(conn, myquerry), -1)
   dbDisconnect(conn)
   output <- list(result,dim(result),names(result))
@@ -49,8 +49,8 @@ function(myquerry) {
 function() {
   .jaddClassPath( "\\jdbc\\dv-jdbc-3.1.jar" )
   driver <- JDBC("com.rs.jdbc.dv.DvDriver",Sys.glob("\\jdbc\\*.jar"))
-  
-  conn = dbConnect(driver,"jdbc:rs:dv://192.86.33.143:1200;DatabaseType=DVS; user=ashissa, password=73e613cc896030ac3e  ", user="ashissa", password="73e613cc896030ac3e")
+  readRenviron(".env")
+  conn = dbConnect(driver,paste("jdbc:rs:",gsub("http:","dv:",Sys.getenv("MainframeIP")),":",Sys.getenv("zDVMPort"),";DatabaseType=DVS; user=",Sys.getenv("zDVMuserID"),", password=",Sys.getenv("zDVMpassword"),sep=""), user=Sys.getenv("zDVMuserID"), password=Sys.getenv("zDVMpassword"))
   result <- dbListTables(conn)
   dbDisconnect(conn)
   output <- list(result)
@@ -62,8 +62,8 @@ function() {
 function(tablename){
   .jaddClassPath( "\\jdbc\\dv-jdbc-3.1.jar" )
   driver <- JDBC("com.rs.jdbc.dv.DvDriver",Sys.glob("\\jdbc\\*.jar"))
-  
-  conn = dbConnect(driver,"jdbc:rs:dv://192.86.33.143:1200;DatabaseType=DVS; user=ashissa, password=73e613cc896030ac3e  ", user="ashissa", password="73e613cc896030ac3e")
+  readRenviron(".env")
+  conn = dbConnect(driver,paste("jdbc:rs:",gsub("http:","dv:",Sys.getenv("MainframeIP")),":",Sys.getenv("zDVMPort"),";DatabaseType=DVS; user=",Sys.getenv("zDVMuserID"),", password=",Sys.getenv("zDVMpassword"),sep=""), user=Sys.getenv("zDVMuserID"), password=Sys.getenv("zDVMpassword"))
   result <- dbListFields(conn,tablename)
   dbDisconnect(conn)
   output <- list(result)
@@ -75,8 +75,8 @@ function(tablename){
 function(myquerry) {
   .jaddClassPath( "\\jdbc\\db2jcc.jar" )
   driver <- JDBC("com.ibm.db2.jcc.DB2Driver",Sys.glob("\\jdbc\\*.jar"))
-  #print(myquerry)
-  conn = conn = dbConnect(driver,"jdbc:db2://192.86.33.143:5040/DALLASC", user="ashissa", password="A9SHISAH", ":memory:")
+  readRenviron(".env")
+  conn = conn = dbConnect(driver,paste("jdbc:",gsub("http:","db2:",Sys.getenv("MainframeIP")),":",Sys.getenv("zDB2Port"),"/",Sys.getenv("zDB2Sys"),sep=""), user=Sys.getenv("zDB2userID"), password=Sys.getenv("zDB2password"), ":memory:")
   if (tolower(str_extract(myquerry, '\\w*')) != "select") {
     result = dbSendUpdate(conn, myquerry)
     dbCommit(conn)
@@ -96,8 +96,8 @@ function(myquerry) {
   
   .jaddClassPath( "/srv/shiny-server/jdbc/dv-jdbc-3.1.jar" )
   driver <- JDBC("com.rs.jdbc.dv.DvDriver",Sys.glob("/srv/shiny-server/jdbc/*.jar"))
-  
-  conn = dbConnect(driver,"jdbc:rs:dv://192.86.33.143:1200;DatabaseType=DVS; user=ashissa, password=73e613cc896030ac3e  ", user="ashissa", password="73e613cc896030ac3e")
+  readRenviron(".env")
+  conn = dbConnect(driver,paste("jdbc:rs:",gsub("http:","dv:",Sys.getenv("MainframeIP")),":",Sys.getenv("zDVMPort"),";DatabaseType=DVS; user=",Sys.getenv("zDVMuserID"),", password=",Sys.getenv("zDVMpassword"),sep=""), user=Sys.getenv("zDVMuserID"), password=Sys.getenv("zDVMpassword"))
   result <- dbFetch(dbSendQuery(conn, myquerry), -1)
   dbDisconnect(conn)
   output <- list(result,dim(result),names(result))
@@ -110,8 +110,8 @@ function(myquerry) {
   
   .jaddClassPath( "/srv/shiny-server/jdbc/dv-jdbc-3.1.jar" )
   driver <- JDBC("com.rs.jdbc.dv.DvDriver",Sys.glob("/srv/shiny-server/jdbc/*.jar"))
-  
-  conn = dbConnect(driver,"jdbc:rs:dv://192.86.33.143:1200;DatabaseType=DVS; user=ashissa, password=73e613cc896030ac3e  ", user="ashissa", password="73e613cc896030ac3e")
+  readRenviron(".env")
+  conn = dbConnect(driver,paste("jdbc:rs:",gsub("http:","dv:",Sys.getenv("MainframeIP")),":",Sys.getenv("zDVMPort"),";DatabaseType=DVS; user=",Sys.getenv("zDVMuserID"),", password=",Sys.getenv("zDVMpassword"),sep=""), user=Sys.getenv("zDVMuserID"), password=Sys.getenv("zDVMpassword"))
   result <- dbFetch(dbSendQuery(conn, myquerry), -1)
   dbDisconnect(conn)
   output <- list(result=result,dim=dim(result),names=names(result))
@@ -124,8 +124,8 @@ function(myquerry) {
 function() {
   .jaddClassPath( "/srv/shiny-server/jdbc/dv-jdbc-3.1.jar" )
   driver <- JDBC("com.rs.jdbc.dv.DvDriver",Sys.glob("/srv/shiny-server/jdbc/*.jar"))
-  
-  conn = dbConnect(driver,"jdbc:rs:dv://192.86.33.143:1200;DatabaseType=DVS; user=ashissa, password=73e613cc896030ac3e  ", user="ashissa", password="73e613cc896030ac3e")
+  readRenviron(".env")
+  conn = dbConnect(driver,paste("jdbc:rs:",gsub("http:","dv:",Sys.getenv("MainframeIP")),":",Sys.getenv("zDVMPort"),";DatabaseType=DVS; user=",Sys.getenv("zDVMuserID"),", password=",Sys.getenv("zDVMpassword"),sep=""), user=Sys.getenv("zDVMuserID"), password=Sys.getenv("zDVMpassword"))
   result <- dbListTables(conn)
   dbDisconnect(conn)
   output <- list(result)
@@ -137,8 +137,8 @@ function() {
 function(tablename){
   .jaddClassPath( "/srv/shiny-server/jdbc/dv-jdbc-3.1.jar" )
   driver <- JDBC("com.rs.jdbc.dv.DvDriver",Sys.glob("/srv/shiny-server/jdbc/*.jar"))
-  
-  conn = dbConnect(driver,"jdbc:rs:dv://192.86.33.143:1200;DatabaseType=DVS; user=ashissa, password=73e613cc896030ac3e  ", user="ashissa", password="73e613cc896030ac3e")
+  readRenviron(".env")
+  conn = dbConnect(driver,paste("jdbc:rs:",gsub("http:","dv:",Sys.getenv("MainframeIP")),":",Sys.getenv("zDVMPort"),";DatabaseType=DVS; user=",Sys.getenv("zDVMuserID"),", password=",Sys.getenv("zDVMpassword"),sep=""), user=Sys.getenv("zDVMuserID"), password=Sys.getenv("zDVMpassword"))
   result <- dbListFields(conn,tablename)
   dbDisconnect(conn)
   output <- list(result)
@@ -151,7 +151,8 @@ function(myquerry) {
   .jaddClassPath( "/srv/shiny-server/jdbc/db2jcc.jar" )
   driver <- JDBC("com.ibm.db2.jcc.DB2Driver",Sys.glob("/srv/shiny-server/jdbc/*.jar"))
   #print(myquerry)
-  conn = conn = dbConnect(driver,"jdbc:db2://192.86.33.143:5040/DALLASC", user="ashissa", password="A9SHISAH", ":memory:")
+  readRenviron(".env")
+  conn = conn = dbConnect(driver,paste("jdbc:",gsub("http:","db2:",Sys.getenv("MainframeIP")),":",Sys.getenv("zDB2Port"),"/",Sys.getenv("zDB2Sys"),sep=""), user=Sys.getenv("zDB2userID"), password=Sys.getenv("zDB2password"), ":memory:")
   if (tolower(str_extract(myquerry, '\\w*')) != "select") {
     result = dbSendUpdate(conn, myquerry)
     dbCommit(conn)
@@ -173,7 +174,8 @@ function(l1, mycurrency) {
   l1 <- as.data.frame(matrix(as.integer(unlist(str_extract_all(l1,"[0-9]+"))), ncol=2, byrow=TRUE), stringsAsFactors=FALSE)
   outdata <- data.frame()
   for (i in 1:NROW(l1)) {
-    urlname <- paste("http://192.86.33.143:9080/catalogManager/items/",l1[i,1],sep="")
+    readRenviron(".env")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/catalogManager/items/",l1[i,1],sep="")
     itemrefdata <- fromJSON(urlname)
     outdata[i,1] <- l1[i,1]
     outdata[i,2] <- l1[i,2]
@@ -251,10 +253,10 @@ function(x, y) {
   }
   
   #print(paste("Amount Paid in USD ", mysum, sep=""))
-  
+  readRenviron(".env")
   #Validate Account
   if (!processing_error) {
-    urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",account_num,sep="")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",account_num,sep="")
     accountdata <- fromJSON(urlname)
     if(accountdata[[1]][[1]][[1]][[2]] != 0){
       message <- "Account Not Found"
@@ -286,7 +288,7 @@ function(x, y) {
           STAT=basedata$STAT,NUMB=basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=basedata$DATEX,AMOUNT=basedata$AMOUNT,COMMENT=basedata$COMMENT)
         )
       ))  
-    res <- PUT(paste("http://192.86.33.143:9080/jkebanking/accno/",account_num,sep=""),body=pc_json,encode ="json")
+    res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",account_num,sep=""),body=pc_json,encode ="json")
     appData <- content(res)
     if (appData[[1]][[1]][[1]][[2]] != 0) {
       message <- "Payment Unsuccessful"
@@ -301,12 +303,12 @@ function(x, y) {
       order_qty <- order_input[i,2]
       while (loop_order) {
         pc_json <- list(DFH0XCP1 = list(orderRequest = list(itemId = order_input[i,1], orderQuantity = order_qty)))
-        res <- POST("http://192.86.33.143:9080/catalogManager/orders",body = pc_json,encode = "json")
+        res <- POST(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/catalogManager/orders",sep=""),body = pc_json,encode = "json")
         appData <- content(res)
         ordermessage <- as.character(as.data.frame(appData)[,1])
         #print(paste("Item = ", order_input[i,1], " Order = ", order_qty, " ", ordermessage,sep = ""))
         if (ordermessage !=  "ORDER SUCCESSFULLY PLACED") {
-          urlname <- paste("http://192.86.33.143:9080/catalogManager/items/",order_input[i,1],sep="")
+          urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/catalogManager/items/",order_input[i,1],sep="")
           itemrefdata <- fromJSON(urlname)
           d1 <- as.data.frame(itemrefdata[[1]][[2]][[1]],stringsAsFactors=F)
           order_qty <- as.numeric(d1[1,]$IN_SNGL_STOCK)
@@ -342,7 +344,7 @@ function(x, y) {
   }
   #Check Account for Refund and process reversal
   if (!processing_error && (refund > 0) ) {
-    urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",account_num,sep="")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",account_num,sep="")
     accountdata <- fromJSON(urlname)
     if(accountdata[[1]][[1]][[1]][[2]] != 0){
       message <- "Account Not found for reversal"
@@ -364,7 +366,7 @@ function(x, y) {
         )
       )
     )  
-    res <- PUT(paste("http://192.86.33.143:9080/jkebanking/accno/",account_num,sep=""),body=pc_json,encode="json")
+    res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",account_num,sep=""),body=pc_json,encode="json")
     appData <- content(res)
     if (appData[[1]][[1]][[1]][[2]] != 0) {
       message <- "Payment Reversal Unsuccessful"
@@ -379,32 +381,4 @@ function(x, y) {
     refund_amount <- refund
   }  
   z <- list(order_input,refund_amount,message)
-}
-
-#* Get DVM results from Docker
-#* @param myquerry from DVM
-#* @post /getDVMzVADocker
-function(myquerry) {
-  
-  .jaddClassPath( "/srv/shiny-server/jdbc/dv-jdbc-3.1.jar" )
-  driver <- JDBC("com.rs.jdbc.dv.DvDriver",Sys.glob("/srv/shiny-server/jdbc/*.jar"))
-  
-  conn = dbConnect(driver,"jdbc:rs:dv://10.149.60.157:1200;DatabaseType=DVS; user=ibmuser, password=sys1  ", user="ibmuser", password="sys1")
-  result <- dbFetch(dbSendQuery(conn, myquerry), -1)
-  dbDisconnect(conn)
-  output <- list(result,dim(result),names(result))
-}
-
-#* Get DVM results from Docker
-#* @param myquerry from DVM
-#* @post /getDVMzVADockermobile
-function(myquerry) {
-  
-  .jaddClassPath( "/srv/shiny-server/jdbc/dv-jdbc-3.1.jar" )
-  driver <- JDBC("com.rs.jdbc.dv.DvDriver",Sys.glob("/srv/shiny-server/jdbc/*.jar"))
-  
-  conn = dbConnect(driver,"jdbc:rs:dv://10.149.60.157:1200;DatabaseType=DVS; user=ibmuser, password=sys1  ", user="ibmuser", password="sys1")
-  result <- dbFetch(dbSendQuery(conn, myquerry), -1)
-  dbDisconnect(conn)
-  output <- list(result=result,dim=dim(result),names=names(result))
 }
