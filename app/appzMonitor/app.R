@@ -385,7 +385,6 @@ options(shiny.maxRequestSize = 9*1024^2)
 
 server <- shinyServer(function(input, output, session) {
 
-  baseurl <- "http://192.86.33.143:9080/"
   #zoweurl = 
   store_runsql <- 0
   resubmitListcount <<- 0

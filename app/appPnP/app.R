@@ -387,8 +387,8 @@ server <- shinyServer(function(input, output, session) {
   BankName <<- "JKE Bank"
   AccountHolderName <<- ""
   PaymentTable <<- data.frame(BankName=as.character(),BankAccountUsed=as.character(),AccountHolderName=as.character(),DebitTxn=as.numeric(),CreditTxn=as.numeric(),TxnCurrency=as.character(),stringsAsFactors=FALSE)
-  #basemicroserviceurl <<- "http://173.193.92.99:32650/"
-  basemicroserviceurl <<- "http://localhost:8000/"
+  basemicroserviceurl <<- "https://route2-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
+  #basemicroserviceurl <<- "http://localhost:8000/"
   
   output$select_currency <- renderUI({
     z1 <- as.data.frame(fromJSON("http://data.fixer.io/api/symbols?access_key=79dc687089494f9b6ff9cf4eb66040f6"))
@@ -517,8 +517,6 @@ server <- shinyServer(function(input, output, session) {
     
     store_runsql <- paste("select  CITY_ID, CITY_NAME,  LAT, LONG, sqrt(((long-(",input$long,"))*(long-(",input$long,")))+((lat-(",input$lat,"))*(lat-(",input$lat,")))) as A from world_city  order by A Fetch first 5 rows only",sep="")
     
-    #basedvmurl <- "http://168.1.144.246:32576/"
-    
     res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
                 ,body=list(myquerry = store_runsql),
                 ,encode = "json")
@@ -628,8 +626,6 @@ server <- shinyServer(function(input, output, session) {
       easyClose = FALSE,
       footer = NULL
     ))
-    
-    #basedvmurl <- "http://168.1.144.246:32576/"
     
     res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
                 ,body=list(myquerry = store_runsql),
@@ -799,7 +795,8 @@ server <- shinyServer(function(input, output, session) {
     }
     
     if(nchar(str_pad(input$accept_account_ref,6,pad="0")) == 6) {
-      urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
+      readRenviron("../.env")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       if(accountdata[[1]][[1]][[1]][[2]] != 0){
         disable("RetrieveAccount")
@@ -822,7 +819,6 @@ server <- shinyServer(function(input, output, session) {
             x <-  paste(as.vector(t(stock_Verified_order_table[,c(1,3)])),collapse=" ")
             
             res <- POST(paste(basemicroserviceurl,"order?",sep="")
-            #res <- POST("http://zmicroservices-debahmuk-build-app.apps.ocp-na1.prod.nextcle.com/order?"
                         , body = paste("x=",x,"\\&","y=",y,sep=""),
                         , encode = "json")
             
@@ -973,7 +969,8 @@ server <- shinyServer(function(input, output, session) {
   output$show_item_details = DT::renderDataTable({
     
     z <- ReappData$c
-    urlname <- paste("http://192.86.33.143:9080/catalogManager/items/",input$accept_item_ref,sep="")
+    readRenviron("../.env")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/catalogManager/items/",input$accept_item_ref,sep="")
     itemrefdata <- fromJSON(urlname)
     d1 <- as.data.frame(itemrefdata[[1]][[2]][[1]])    
     
@@ -1115,7 +1112,8 @@ server <- shinyServer(function(input, output, session) {
       footer = NULL
     ))
     z <- ReappData$c
-    urlname <- paste("http://192.86.33.143:9080/catalogManager/items?startItemId=",input$accept_item_ref,sep="")
+    readRenviron("../.env")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/catalogManager/items?startItemId=",input$accept_item_ref,sep="")
     itemrefdata <- fromJSON(urlname)
     d1 <- as.data.frame(itemrefdata[[1]][[2]][[2]])
     d1 <- d1[,c(2,5,3)]
@@ -1166,7 +1164,6 @@ server <- shinyServer(function(input, output, session) {
     }
     
     if (NROW(orderitemlselectionlist) > 0) {
-      #res <- POST("http://zmicroservices-debahmuk-build-app.apps.ocp-na1.prod.nextcle.com/validate?"
       res <- POST(paste(basemicroserviceurl,"validate?",sep="")
                   , body = paste("l1=",paste(as.vector(t(orderitemlselectionlist[,c(1,4)])),collapse=" "),"\\&","mycurrency=",input$selected_currency,sep=""),
                   , encode = "json")
@@ -1193,7 +1190,8 @@ server <- shinyServer(function(input, output, session) {
     if (NROW(dxx) == 0) {
       message <- "Enter Order Quantity for"
       rowpos <- NROW(orderitemlselectionlist) + 1
-      urlname <- paste("http://192.86.33.143:9080/catalogManager/items/",input$accept_item_ref,sep="")
+      readRenviron("../.env")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/catalogManager/items/",input$accept_item_ref,sep="")
       itemrefdata <- fromJSON(urlname)
       d1 <- as.data.frame(itemrefdata[[1]][[2]][[1]],stringsAsFactors=F)
       if(d1[1,1] != input$accept_item_ref){
@@ -1308,7 +1306,6 @@ server <- shinyServer(function(input, output, session) {
     create_new_order_reactive(FALSE)
     cancel_order_reactive(FALSE)
     if (NROW(orderitemlselectionlist) > 0) {
-      #res <- POST("http://zmicroservices-debahmuk-build-app.apps.ocp-na1.prod.nextcle.com/validate?"
       res <- POST(paste(basemicroserviceurl,"validate?",sep="")
                   , body = paste("l1=",paste(as.vector(t(orderitemlselectionlist[,c(1,4)])),collapse=" "),"\\&","mycurrency=",input$selected_currency,sep=""),
                   , encode = "json")
@@ -1398,7 +1395,8 @@ server <- shinyServer(function(input, output, session) {
       if (ReappData$c != "" ) {
         shinyalert("Order", ReappData$c, type = "info",confirmButtonCol = "#3F27B3")
         if (ReappData$c != "ORDER SUCCESSFULLY PLACED") {
-          urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
+          readRenviron("../.env")
+          urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
           accountdata <- fromJSON(urlname)
           if(accountdata[[1]][[1]][[1]][[2]] != 0){
             shinyalert("Error", "Reversal Account Not found", type = "error",confirmButtonCol = "#E74C3C")
@@ -1436,8 +1434,8 @@ server <- shinyServer(function(input, output, session) {
               )
             )
           )
-          
-          res <- PUT(paste("http://192.86.33.143:9080/jkebanking/accno/",dx2$NUMB,sep="")
+          readRenviron("../.env")
+          res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",dx2$NUMB,sep="")
                      , body = pc_json
                      , encode = "json")
           

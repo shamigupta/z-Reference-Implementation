@@ -565,15 +565,7 @@ server <- shinyServer(function(input, output, session) {
   show_welcome <- reactiveVal(TRUE)
   retrieveacountpressedcount <- 0
   stock_Verified_order_table <<- data.frame(ItemRef=as.character(),Ordered=as.character(),Fulfillable=as.character(),ItemQty=as.integer(),stringsAsFactors=FALSE)
-  #world_warehouse <- read.csv("deliver_center.csv",stringsAsFactors = F)
-  google_distance_base_url <- "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins="
-  google_distance_api_key <- "&mode=transit&sensor=true&key=AIzaSyCZBzc0BzKJ3U_MgqUk5JkAQAnSV7IHpyQ"
-  dc_per_km <- 0.0005
-  order_status <<- data.frame(ItemRef=as.character(),QtyRquested=as.character(),OrderPlaced=as.character(),ItemQty=as.integer(),stringsAsFactors=FALSE)
-  saved_address <<- ""
-  Additionalinfo <<- data.frame(WarehouseName=as.character(),WarehouseAddress=as.numeric(),DeliveryAddress=as.character(),DeliveryCharges=as.numeric(),DeliveryDate=as.character(),stringsAsFactors=FALSE)
-  StoreGoToLandmark <<- 0
-  
+
   stock_verified_message <<- ""
   stock_verified_price <<- ""
     
@@ -597,7 +589,7 @@ server <- shinyServer(function(input, output, session) {
   BankName <<- "JKE Bank"
   AccountHolderName <<- ""
   PaymentTable <<- data.frame(BankName=as.character(),BankAccountUsed=as.character(),AccountHolderName=as.character(),DebitTxn=as.numeric(),CreditTxn=as.numeric(),TxnCurrency=as.character(),stringsAsFactors=FALSE)
-  #basemicroserviceurl <<- "http://159.122.181.240:31300/"
+  #basemicroserviceurl <<- "https://route2-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
   basemicroserviceurl <<- "http://localhost:8000/"
 
   "localhost:8000/"
@@ -720,8 +712,8 @@ server <- shinyServer(function(input, output, session) {
         easyClose = FALSE,
         footer = NULL
       ))
-      
-      urlname <- paste("http://192.86.33.143:9080/CB12Customer/customer/",input$table_customer_ref,sep="")
+      readRenviron("../.env")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Customer/customer/",input$table_customer_ref,sep="")
       accountdata <- fromJSON(urlname)
       removeModal()
       if (accountdata$LGCMAREA$CA_RETURN_CODE == 0) {
@@ -788,7 +780,8 @@ server <- shinyServer(function(input, output, session) {
     d1 <- data.frame(POLICYTYPE=as.character(),POLICYCOUNT=as.integer(),stringsAsFactors=FALSE)
 
     if (!is.null(input$table_customer_ref)) {
-      urlname <- paste("http://192.86.33.143:9080/CB12_getCustomerPolicy/Customer?CustomerNumber=",input$table_customer_ref,sep="")
+      readRenviron("../.env")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12_getCustomerPolicy/Customer?CustomerNumber=",input$table_customer_ref,sep="")
       accountdata <- fromJSON(urlname)
       if ( accountdata$StatusCode == 200) {
         d1 <- as.data.frame(accountdata$`ResultSet Output`,stringsAsFactors=FALSE)
@@ -891,8 +884,8 @@ server <- shinyServer(function(input, output, session) {
         easyClose = FALSE,
         footer = NULL
       ))
-      
-      res <- POST("http://192.86.33.143:9080/CB12Customer/AddCustomer"
+      readRenviron("../.env")
+      res <- POST(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Customer/AddCustomer",sep="")
                  , body = pc_json
                  , encode = "json")
       
@@ -952,8 +945,8 @@ server <- shinyServer(function(input, output, session) {
         easyClose = FALSE,
         footer = NULL
       ))
-      
-      res <- PUT(paste("http://192.86.33.143:9080/CB12Customer/customer/",input$table_customer_ref,sep="")
+      readRenviron("../.env")
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Customer/customer/",input$table_customer_ref,sep="")
                  , body = pc_json
                  , encode = "json")
       
@@ -1173,9 +1166,8 @@ server <- shinyServer(function(input, output, session) {
       easyClose = FALSE,
       footer = NULL
     ))
-    
-    
-    urlname <- paste("http://192.86.33.143:9080/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
+    readRenviron("../.env")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
     mr_policy_data <- fromJSON(urlname)
     accountdata1 <- fromJSON(urlname)
     removeModal()
@@ -1436,8 +1428,8 @@ server <- shinyServer(function(input, output, session) {
         easyClose = FALSE,
         footer = NULL
       ))
-      
-      res <- PUT(paste("http://192.86.33.143:9080/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
+      readRenviron("../.env")
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
                   , body = pc_json
                   , encode = "json")
       
@@ -1448,7 +1440,7 @@ server <- shinyServer(function(input, output, session) {
       }
       else {
         shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully updated", sep=""), type = "success",confirmButtonCol = "#54BA60")
-        urlname <- paste("http://192.86.33.143:9080/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
+        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
         mr_policy_data <- fromJSON(urlname)
         accountdata1 <- fromJSON(urlname)
         if ( !is.null(mr_policy_data$LGCMAREA$CA_RETURN_CODE)) {
@@ -1493,8 +1485,8 @@ server <- shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$ok_md, {
-    
-    res <- DELETE(paste("http://192.86.33.143:9080/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep=""))
+    readRenviron("../.env")
+    res <- DELETE(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep=""))
     removeModal()
     appData <- content(res)
     if (appData$LGCMAREA$CA_RETURN_CODE != 0) {
@@ -1522,9 +1514,8 @@ server <- shinyServer(function(input, output, session) {
       easyClose = FALSE,
       footer = NULL
     ))
-    
-    
-    urlname <- paste("http://192.86.33.143:9080/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
+    readRenviron("../.env")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
     er_policy_data <- fromJSON(urlname)
     accountdata1 <- fromJSON(urlname)
     removeModal()
@@ -1759,8 +1750,8 @@ server <- shinyServer(function(input, output, session) {
         easyClose = FALSE,
         footer = NULL
       ))
-      
-      res <- PUT(paste("http://192.86.33.143:9080/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
+      readRenviron("../.env")
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
                  , body = pc_json
                  , encode = "json")
       
@@ -1771,7 +1762,7 @@ server <- shinyServer(function(input, output, session) {
       }
       else {
         shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully updated", sep=""), type = "success",confirmButtonCol = "#54BA60")
-        urlname <- paste("http://192.86.33.143:9080/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
+        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
         er_policy_data <- fromJSON(urlname)
         accountdata1 <- fromJSON(urlname)
         if ( !is.null(er_policy_data$LGCMAREA$CA_RETURN_CODE)) {
@@ -1819,8 +1810,8 @@ server <- shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$ok_ed, {
-    
-    res <- DELETE(paste("http://192.86.33.143:9080/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep=""))
+    readRenviron("../.env")
+    res <- DELETE(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep=""))
     removeModal()
     appData <- content(res)
     if (appData$LGCMAREA$CA_RETURN_CODE != 0) {
@@ -1850,8 +1841,8 @@ server <- shinyServer(function(input, output, session) {
       footer = NULL
     ))
     
-    
-    urlname <- paste("http://192.86.33.143:9080/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
+    readRenviron("../.env")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
     hr_policy_data <- fromJSON(urlname)
     accountdata1 <- fromJSON(urlname)
     removeModal()
@@ -2075,8 +2066,8 @@ server <- shinyServer(function(input, output, session) {
         easyClose = FALSE,
         footer = NULL
       ))
-      
-      res <- PUT(paste("http://192.86.33.143:9080/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
+      readRenviron("../.env")
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
                  , body = pc_json
                  , encode = "json")
       
@@ -2087,7 +2078,7 @@ server <- shinyServer(function(input, output, session) {
       }
       else {
         shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully updated", sep=""), type = "success",confirmButtonCol = "#54BA60")
-        urlname <- paste("http://192.86.33.143:9080/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
+        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
         hr_policy_data <- fromJSON(urlname)
         accountdata1 <- fromJSON(urlname)
         if ( !is.null(hr_policy_data$LGCMAREA$CA_RETURN_CODE)) {
@@ -2135,8 +2126,8 @@ server <- shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$ok_hd, {
-    
-    res <- DELETE(paste("http://192.86.33.143:9080/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep=""))
+    readRenviron("../.env")
+    res <- DELETE(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep=""))
     removeModal()
     appData <- content(res)
     if (appData$LGCMAREA$CA_RETURN_CODE != 0) {
@@ -2167,8 +2158,8 @@ server <- shinyServer(function(input, output, session) {
       footer = NULL
     ))
     
-    
-    urlname <- paste("http://192.86.33.143:9080/CB12CommercialPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
+    readRenviron("../.env")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12CommercialPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
     cr_policy_data <- fromJSON(urlname)
     accountdata1 <- fromJSON(urlname)
     removeModal()
@@ -2384,8 +2375,8 @@ server <- shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$ok_cd, {
-    
-    res <- DELETE(paste("http://192.86.33.143:9080/CB12CommercialPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep=""))
+    readRenviron("../.env")
+    res <- DELETE(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12CommercialPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep=""))
     removeModal()
     appData <- content(res)
     if (appData$LGCMAREA$CA_RETURN_CODE != 0) {

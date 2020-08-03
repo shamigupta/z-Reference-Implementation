@@ -123,10 +123,6 @@ ui <- dashboardPage(
               fluidRow(
                 column(12,h6(DT::dataTableOutput("ListSQLResults")))
               )
-            #),
-            # box (
-            #   title = span(icon("search","fa-x"),strong("Mainframe")), status = "primary", width = 12,solidHeader = TRUE,collapsible=FALSE,  
-            #   column(12,htmlOutput("inc"))
             )
           )
     )
@@ -201,21 +197,7 @@ server <- shinyServer(function(input, output, session) {
       formatStyle(columns = c(1), fontSize = '130%', color = 'white', fontWeight = 'bold', backgroundColor = 'darkblue') 
   })
   
-  getPage<-function() {
-    #return(tags$iframe(src = "https://192.86.33.143:10443/zosmf/LogOnPanel.jsp"
-    return(tags$iframe(src = "http://e1.c3.33a9.ip4.static.sl-reverse.com:31252/"
-                       , style="width:100%;",  frameborder="0"
-                       ,id="iframe"
-                       , height = "500px"))
-  }
-  
-  output$inc<-renderUI({
-    x <- input$test  
-    getPage()
-  })
-  
-  
-    
+
 })
 
 shinyApp(ui = ui, server = server)

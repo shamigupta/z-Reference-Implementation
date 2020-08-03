@@ -421,7 +421,8 @@ server <- shinyServer(function(input, output, session) {
     enable("get_mortgage_options")
     if (input$get_mortgage_options > MortgageOptionpressedcount) {
       MortgageOptionpressedcount <<- input$get_mortgage_options
-      urlname <- paste("http://192.86.33.143:9080/jkeMortgage/user/",input$accept_mortgage_amt,",",input$accept_mortgage_term,",0,",input$accept_mortgage_rate,",Y",sep="")
+      readRenviron("../.env")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkeMortgage/user/",input$accept_mortgage_amt,",",input$accept_mortgage_term,",0,",input$accept_mortgage_rate,",Y",sep="")
       accountdata2 <- fromJSON(urlname)
       if (accountdata2[[1]][[1]][[2]] != "") {
         return(accountdata2[[1]][[1]][[2]])
@@ -430,7 +431,7 @@ server <- shinyServer(function(input, output, session) {
         x <- accountdata2[[1]][[1]][[1]]
         reactiveEMI(x)
       }
-      urlname <- paste("http://192.86.33.143:9080/jkeMortgageCompany/user/0,",input$accept_mortgage_amt,",",input$accept_mortgage_term,",0,",input$accept_mortgage_rate,",Y",sep="")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkeMortgageCompany/user/0,",input$accept_mortgage_amt,",",input$accept_mortgage_term,",0,",input$accept_mortgage_rate,",Y",sep="")
       accountdata1 <- fromJSON(urlname)
       if (accountdata1[[1]][[1]] != "") {
         return(accountdata1[[1]][[1]])
@@ -515,7 +516,8 @@ server <- shinyServer(function(input, output, session) {
     }
     
     if(nchar(str_pad(input$accept_account_ref,6,pad="0")) == 6) {
-      urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
+      readRenviron("../.env")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       if(accountdata[[1]][[1]][[1]][[2]] != 0){
         disable("RetrieveAccount")
@@ -544,7 +546,8 @@ server <- shinyServer(function(input, output, session) {
 
     if (input$RetrieveAccount > retrieveacountpressedcount) {
       retrieveacountpressedcount <<- input$RetrieveAccount
-      urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
+      readRenviron("../.env")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       
       if(nchar(str_pad(input$accept_account_ref,6,pad="0")) != 6) {
@@ -649,8 +652,9 @@ server <- shinyServer(function(input, output, session) {
           )
         )
       )
-    
-      res <- POST("http://192.86.33.143:9080/jkebanking/accno"
+      
+      readRenviron("../.env")
+      res <- POST(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno",sep="")
                 , body = pc_json
                 , encode = "json")
     
@@ -710,7 +714,8 @@ server <- shinyServer(function(input, output, session) {
         return("")
       } 
       RetrieveAccount4updatepressedcount <<- input$RetrieveAccount4update
-      urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
+      readRenviron("../.env")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       
 
@@ -771,8 +776,8 @@ server <- shinyServer(function(input, output, session) {
         )
       )  
       
-      
-      res <- PUT(paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
+      readRenviron("../.env")
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
                  , body = pc_json
                  , encode = "json")
       
@@ -784,7 +789,8 @@ server <- shinyServer(function(input, output, session) {
       
       if (appData[[1]][[1]][[1]][[2]] == 0) {
         #RetrieveAccount4updatepressedcount <<- input$RetrieveAccount4update
-        urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
+        readRenviron("../.env")
+        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
         accountdata <- fromJSON(urlname)
         
         
@@ -846,7 +852,8 @@ server <- shinyServer(function(input, output, session) {
         return("")
       } 
       RetrieveAccount4depositpressedcount <<- input$RetrieveAccount4deposit
-      urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
+      readRenviron("../.env")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       
       
@@ -929,8 +936,8 @@ server <- shinyServer(function(input, output, session) {
           )
         )
       )  
-      
-      res <- PUT(paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
+      readRenviron("../.env")
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
                  , body = pc_json
                  , encode = "json")
       
@@ -942,7 +949,7 @@ server <- shinyServer(function(input, output, session) {
       
       if (appData[[1]][[1]][[1]][[2]] == 0) {
         #RetrieveAccount4depositpressedcount <<- input$RetrieveAccount4deposit
-        urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
+        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
         accountdata <- fromJSON(urlname)
         
         
@@ -1014,7 +1021,8 @@ server <- shinyServer(function(input, output, session) {
         return("")
       } 
       RetrieveAccount4withdrawalpressedcount <<- input$RetrieveAccount4withdrawal
-      urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
+      readRenviron("../.env")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       
       
@@ -1128,8 +1136,8 @@ server <- shinyServer(function(input, output, session) {
           )
         )
       )  
-      
-      res <- PUT(paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
+      readRenviron("../.env")
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
                  , body = pc_json
                  , encode = "json")
       
@@ -1141,7 +1149,8 @@ server <- shinyServer(function(input, output, session) {
       
       if (appData[[1]][[1]][[1]][[2]] == 0) {
         #RetrieveAccount4withdrawalpressedcount <<- input$RetrieveAccount4withdrawal
-        urlname <- paste("http://192.86.33.143:9080/jkebanking/accno/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
+        readRenviron("../.env")
+        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
         accountdata <- fromJSON(urlname)
         
         

@@ -64,9 +64,9 @@ fi
 ############################################################################
 # Start the deployment details using kubectl                               #
 ############################################################################
-ibmcloud ks cluster config --cluster zcluster2
+ibmcloud ks cluster config --cluster zcluster1
 #kubectl config current-context
-#ibmcloud ks cluster config zcluster2
+#ibmcloud ks cluster config zcluster1
 
 echo 'Deleting the deployment' $git_repo
 kubectl delete deployment "$git_repo" 
@@ -107,7 +107,7 @@ echo 'Delete Old Deployment End'
 ############################################################################
   #ibmcloud ks cluster ls
   #kubectl describe deployments x86-r-z-appln
-  ibmcloud ks worker ls --cluster zcluster2
+  ibmcloud ks worker ls --cluster zcluster1
   kubectl describe service "$git_repo"
 ############################################################################
 # Create Short url from Node/Node-port                                     #
