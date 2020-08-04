@@ -27,6 +27,7 @@ function(){
 #* @post /sum
 function(a, b){
   as.numeric(a) + as.numeric(b)
+  getwd()
 }
 
 #* Get DVM results
