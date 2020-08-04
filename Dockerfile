@@ -16,6 +16,7 @@ EXPOSE 1240 8000
 COPY /supervisord.conf /etc/
 RUN mkdir -p /var/log/supervisord/
 RUN chmod -R 777 /var/log/supervisord/
+RUN chmod -R 777 /srv/shiny-server/
 #WORKDIR /srv/shiny-server/
 #
 ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
