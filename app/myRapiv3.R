@@ -27,7 +27,7 @@ function(){
 #* @post /sum
 function(a, b){
   #as.numeric(a) + as.numeric(b)
-  readRenviron(".env")
+  readRenviron("./.env")
   paste("jdbc:rs:",gsub("http:","dv:",Sys.getenv("MainframeIP")),":",Sys.getenv("zDVMPort"),";DatabaseType=DVS; user=",Sys.getenv("zDVMuserID"),", password=",Sys.getenv("zDVMpassword"),sep="")
 }
 
