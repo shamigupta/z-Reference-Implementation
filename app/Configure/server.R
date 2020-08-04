@@ -80,7 +80,8 @@ shinyServer(function(input, output, session){
     y <- paste(x$Parameter,"=",'"',x$Value,'"',sep="")
     write.table(y, "../.env",quote=FALSE,row.names=FALSE,col.names = FALSE)
     #write.csv(data.frame(vals_trich$Data), "../.env", row.names = F,col.names = F,sep="=")
-    shinyalert(title = "Saved!", type = "success")
+    shinyalert("Saved", "Please restart the Plumber Microservice Server", type = "success", confirmButtonCol = "#3F27B3")
+    #shinyalert(title = "Saved!", type = "success")
   })
   
 
