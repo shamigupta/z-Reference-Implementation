@@ -1453,7 +1453,7 @@ server <- shinyServer(function(input, output, session) {
       ))
       readRenviron("../.env")
       baseurl <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),sep="")
-      qryurl <- paste(baseurl,"filemanager/getData",sep="")
+      qryurl <- paste(baseurl,"/filemanager/getData",sep="")
       pc_json <- list(
         resource = list(
           resourceName = input$accept_filedata_source_dsname
@@ -1562,7 +1562,7 @@ server <- shinyServer(function(input, output, session) {
       ))
       readRenviron("../.env")
       baseurl <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),sep="")
-      qryurl <- paste(baseurl,"fmdb2genapi/getData",sep="")
+      qryurl <- paste(baseurl,"/fmdb2genapi/getData",sep="")
       pc_json <- list(
         resource = list(
           ssid = input$accept_db2_ssid,
