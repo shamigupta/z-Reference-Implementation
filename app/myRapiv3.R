@@ -394,7 +394,8 @@ function(x, y) {
 #* @param reference Customer num or Policy Num or Claim Num
 #* @post /sendgmailGENApps
 function(myentity, operation, reference){
-  basemicroserviceurl <<- "http://localhost:8000/"
+  #basemicroserviceurl <<- "http://localhost:8000/"
+  basemicroserviceurl <<- "/"
   
   email_qry <- ifelse(myentity=="Claim", paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B, vclaim C where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = C.POLICYNUMBER AND C.CLAIMNUMBER = ",reference,sep=""),
                       ifelse(myentity=="Policy",paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = ",reference,sep=""),
