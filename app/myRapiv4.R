@@ -126,7 +126,7 @@ function(myentity, operation, reference){
   
   header_message <- paste("Your",policy_type,myentity,"record #", reference,"is",operation,sep=" ")
   
-  #gm_auth_configure(path  = "/srv/shiny-server/genapps.json")
+  gm_auth_configure(path  = "/srv/shiny-server/genapps.json")
   options(
     gargle_oauth_cache = "/srv/shiny-server/.secretgenapps",
     gargle_oauth_email = "gen.apps.insurance@gmail.com"
