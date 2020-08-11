@@ -394,11 +394,15 @@ function(x, y) {
 #* @param reference Customer num or Policy Num or Claim Num
 #* @post /sendgmailGENApps
 function(myentity, operation, reference){
-  basemicroserviceurl <<- "https://localhost:8000/"
+  #basemicroserviceurl <<- "https://localhost:8000/"
+  basemicroserviceurl <<- "https://route2-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
   
   email_qry <- ifelse(myentity=="Claim", paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B, vclaim C where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = C.POLICYNUMBER AND C.CLAIMNUMBER = ",reference,sep=""),
                       ifelse(myentity=="Policy",paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = ",reference,sep=""),
                              paste("select firstname, lastname, emailaddress from vcustomer where CUSTOMERNUMBER = ",reference,sep="")))
+  
+  
+  #print(email_qry)
   
   res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
               ,body=list(myquerry = email_qry),
@@ -472,9 +476,9 @@ function(myentity, operation, reference){
   
   header_message <- paste("Your",policy_type,myentity,"record #", reference,"is",operation,sep=" ")
   
-  #gm_auth_configure(path  = "/srv/shiny-server/genapps.json")
+  gm_auth_configure(path  = "genapps.json")
   options(
-    gargle_oauth_cache = "/srv/shiny-server/.secretgenapps",
+    gargle_oauth_cache = ".secretgenapps",
     gargle_oauth_email = "gen.apps.insurance@gmail.com"
   )
   gm_auth(email = "gen.apps.insurance@gmail.com")
