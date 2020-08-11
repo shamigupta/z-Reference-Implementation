@@ -47,7 +47,7 @@ function(myentity, operation, reference){
                       ifelse(myentity=="Policy",paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = ",reference,sep=""),
                              paste("select firstname, lastname, emailaddress from vcustomer where CUSTOMERNUMBER = ",reference,sep="")))
 
-  #print("*******")
+  print(paste(myentity,operation,reference,sep=" "))
   #print(email_qry)
     
   res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
