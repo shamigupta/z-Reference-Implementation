@@ -5,6 +5,10 @@ library(stringr)
 library(DBI)
 library(RJDBC)
 library(rJava)
+library(gmailr)
+library(pander)
+library(dplyr)
+
 
 #* Echo back the input
 #* @param msg The message to echo
