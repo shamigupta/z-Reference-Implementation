@@ -47,15 +47,15 @@ function(myentity, operation, reference){
                       ifelse(myentity=="Policy",paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = ",reference,sep=""),
                              paste("select firstname, lastname, emailaddress from vcustomer where CUSTOMERNUMBER = ",reference,sep="")))
 
-  print("*******")
-  print(email_qry)
+  #print("*******")
+  #print(email_qry)
     
   res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
               ,body=list(myquerry = email_qry),
               ,encode = "json")
   
   appPol <- content(res)
-  print(appPol)
+  #print(appPol)
   if (length(appPol) > 1) {
     if (appPol[[2]][[2]] > 0 && length(appPol[[1]]) != 0) {
       To_email_id <-  trimws(appPol[[1]][[1]]$EMAILADDRESS)
@@ -68,13 +68,13 @@ function(myentity, operation, reference){
                      ifelse(myentity=="Policy",paste("select * from vpolicy C where POLICYNUMBER = ",reference,sep=""),
                             paste("select * from vcustomer where CUSTOMERNUMBER = ",reference,sep="")))
   
-  print(data_qry)
+  #print(data_qry)
   resdata <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
                   ,body=list(myquerry = data_qry),
                   ,encode = "json")
   
   appData <- content(resdata)
-  print(appData)
+  #print(appData)
   if (length(appData) > 1) {
     if (appData[[2]][[2]] > 0 && length(appData[[1]]) != 0) {
       d1 <- as.data.frame(matrix(unlist(appData[[1]]), ncol=appData[[2]][[2]], byrow=TRUE), stringsAsFactors=FALSE)
@@ -100,13 +100,13 @@ function(myentity, operation, reference){
       policy_data_qry <- paste("select * from VCOMMERCIAL C where POLICYNUMBER = ",reference,sep="")
       policy_type <- "Commercial"
     }
-    print(policy_data_qry)
+    #print(policy_data_qry)
     respolicydata <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
                           ,body=list(myquerry = policy_data_qry),
                           ,encode = "json")
     
     appData <- content(respolicydata)
-    print(appData)
+    #print(appData)
     if (length(appData) > 1) {
       if (appData[[2]][[2]] > 0 && length(appData[[1]]) != 0) {
         d2 <- as.data.frame(matrix(unlist(appData[[1]]), ncol=appData[[2]][[2]], byrow=TRUE), stringsAsFactors=FALSE)
@@ -126,14 +126,14 @@ function(myentity, operation, reference){
   
   header_message <- paste("Your",policy_type,myentity,"record #", reference,"is",operation,sep=" ")
   
-  gm_auth_configure(path  = "/srv/shiny-server/genapps.json")
+  #gm_auth_configure(path  = "/srv/shiny-server/genapps.json")
   options(
     gargle_oauth_cache = "/srv/shiny-server/.secretgenapps",
     gargle_oauth_email = "gen.apps.insurance@gmail.com"
   )
   gm_auth(email = "gen.apps.insurance@gmail.com")
   
-  print("Authorized")
+  #print("Authorized")
   
   d1[1,] <- trimws(d1[1,],"both")
   d1 <- as.data.frame(t(d1))
@@ -162,7 +162,7 @@ function(myentity, operation, reference){
   #  gm_html_body('<h1>A plot of <b>MotorTrend</b> data <i>(1974)</i></h1><br><img src="cid:foobar">') %>%
   #  gm_attach_file("mtcars.png", id = "foobar")  
 
-  print("Mail ready to send")
+  #print("Mail ready to send")
   
   gm_send_message(my_email_message)
   output <- "Mail Sent"
