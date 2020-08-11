@@ -10,7 +10,7 @@ RUN chmod +x /usr/bin/shiny-server.sh
 COPY run-myfile.R /srv/shiny-server/
 #
 # Make the ShinyApp available at port 1240
-EXPOSE 1240 8000
+EXPOSE 1240 8000 8100
 #
 # Copy further configuration files into the Docker image
 COPY /supervisord.conf /etc/
