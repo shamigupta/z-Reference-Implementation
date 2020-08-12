@@ -173,7 +173,11 @@ function(myentity, operation, reference){
     latest_msg <- unlist(list(salutation," ",welcome_message, " ",header_message,msg_table))  
     title_message <- "Welcome to GenApps Insurance"
   } else {
-    latest_msg <- unlist(list(salutation," ",header_message,ifelse(operation != "deleted",msg_table,"")))
+    if (operation != "deleted") {
+      latest_msg <- unlist(list(salutation," ",header_message,msg_table))
+    } else {
+      latest_msg <- unlist(list(salutation," ",header_message))
+    }
     title_message <- paste(print_policy_type,myentity,reference,"is",operation,sep=" ")
   }
   latest_msg <- gsub("&nbsp;","Field ",latest_msg)
