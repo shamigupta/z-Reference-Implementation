@@ -44,11 +44,17 @@ function(myentity, operation, reference){
   readRenviron("/srv/shiny-server/.env")
   basemicroserviceurl <<- "http://localhost:8000/"
 
-  email_qry <- ifelse(myentity=="Claim", paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B, vclaim C where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = C.POLICYNUMBER AND C.CLAIMNUMBER = ",reference,sep=""),
-                      ifelse(myentity=="Policy",paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = ",reference,sep=""),
-                             paste("select firstname, lastname, emailaddress from vcustomer where CUSTOMERNUMBER = ",reference,sep="")))
-  
-  basemicroserviceurl <<- "https://route2-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
+  if (operation == "deleted") {
+    inputarray <- unlist(strsplit(reference,"-"))
+    reference <- inputarray[1]
+    referencecustomer <- inputarray[2]
+    email_qry <- paste("select firstname, lastname, emailaddress from vcustomer where CUSTOMERNUMBER = ",referencecustomer,sep="")
+    print_policy_type = ""
+  } else {
+    email_qry <- ifelse(myentity=="Claim", paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B, vclaim C where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = C.POLICYNUMBER AND C.CLAIMNUMBER = ",reference,sep=""),
+                        ifelse(myentity=="Policy",paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = ",reference,sep=""),
+                               paste("select firstname, lastname, emailaddress from vcustomer where CUSTOMERNUMBER = ",reference,sep="")))
+  }
   res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
               ,body=list(myquerry = email_qry),
               ,encode = "json")
@@ -61,7 +67,7 @@ function(myentity, operation, reference){
       Last_Name <- trimws(appPol[[1]][[1]]$LASTNAME)
     }
   }
-
+  
   if (myentity == "Customer") {
     urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Customer/customer/",reference,sep="")
     accountdata <- fromJSON(urlname)
@@ -139,6 +145,7 @@ function(myentity, operation, reference){
     print_policy_type = ""
   }
   
+  
   salutation <- paste("Dear ",First_Name," ", Last_Name,",",sep="")
   
   welcome_message <- "General Insurance App welcomes you as a new customer."
@@ -154,25 +161,27 @@ function(myentity, operation, reference){
   
   #print("Authorized")
   
-  d1[1,] <- trimws(d1[1,],"both")
-  d1 <- as.data.frame(t(d1))
-  names(d1) <- "Record"
-  
-  msg_table <- pander_return(d1,style="grid")
+  if (operation != "deleted") {
+    d1[1,] <- trimws(d1[1,],"both")
+    d1 <- as.data.frame(t(d1))
+    names(d1) <- "Record"
+    
+    msg_table <- pander_return(d1,style="grid")
+  }
   
   if(myentity == "Customer" && operation == "created") {
     latest_msg <- unlist(list(salutation," ",welcome_message, " ",header_message,msg_table))  
     title_message <- "Welcome to GenApps Insurance"
   } else {
-    latest_msg <- unlist(list(salutation," ",header_message,msg_table))
+    latest_msg <- unlist(list(salutation," ",header_message,ifelse(operation != "deleted",msg_table,"")))
     title_message <- paste(print_policy_type,myentity,reference,"is",operation,sep=" ")
   }
   latest_msg <- gsub("&nbsp;","Field ",latest_msg)
-
+  
   #html_msg_text <- paste(html_msg_text,x2,sep="")
   
   my_email_message <- gm_mime() %>%
-    gm_to("shami.gupta@in.ibm.com") %>%
+    gm_to(To_email_id) %>%
     gm_from("General Insurance Apps (gen.apps.insurance@gmail.com)") %>%
     gm_subject(title_message) %>%
     gm_text_body(paste(latest_msg,collapse = "\n"))

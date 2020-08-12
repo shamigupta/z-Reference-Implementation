@@ -899,6 +899,7 @@ server <- shinyServer(function(input, output, session) {
       }
       else {
         shinyalert("Success", paste("New Customer ID ", appData$LGCMAREA$CA_CUSTOMER_NUM, " successfully created", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020        
         if (refreshcustomer()) {
           newrefreshcustomer <- FALSE
           refreshcustomer(newrefreshcustomer)
@@ -958,6 +959,7 @@ server <- shinyServer(function(input, output, session) {
       }
       else {
         shinyalert("Success", "Customer Data successfully updated", type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
         if (refreshcustomer()) {
           newrefreshcustomer <- FALSE
           refreshcustomer(newrefreshcustomer)
@@ -1441,6 +1443,7 @@ server <- shinyServer(function(input, output, session) {
       }
       else {
         shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully updated", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
         mr_policy_data <- fromJSON(urlname)
         accountdata1 <- fromJSON(urlname)
@@ -1504,6 +1507,7 @@ server <- shinyServer(function(input, output, session) {
         refreshPolicy(newrefreshPolicy)
       }
       shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully deleted", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020      
     }
   })
 ################  
@@ -1763,6 +1767,7 @@ server <- shinyServer(function(input, output, session) {
       }
       else {
         shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully updated", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
         er_policy_data <- fromJSON(urlname)
         accountdata1 <- fromJSON(urlname)
@@ -1829,6 +1834,7 @@ server <- shinyServer(function(input, output, session) {
         refreshPolicy(newrefreshPolicy)
       }
       shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully deleted", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
     }
   })
 ################################    
@@ -2079,6 +2085,7 @@ server <- shinyServer(function(input, output, session) {
       }
       else {
         shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully updated", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
         hr_policy_data <- fromJSON(urlname)
         accountdata1 <- fromJSON(urlname)
@@ -2145,6 +2152,7 @@ server <- shinyServer(function(input, output, session) {
         refreshPolicy(newrefreshPolicy)
       }
       shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully deleted", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
     }
   })
   
@@ -2394,6 +2402,7 @@ server <- shinyServer(function(input, output, session) {
         refreshPolicy(newrefreshPolicy)
       }
       shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully deleted", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
     }
   })
 ###############################
