@@ -564,6 +564,9 @@ server <- shinyServer(function(input, output, session) {
   savedstatus <<- ""
   show_welcome <- reactiveVal(TRUE)
   retrieveacountpressedcount <- 0
+#SGAug2020
+  emailserviceurl <<- "http://localhost:8100/"
+#SGAug2020  
   stock_Verified_order_table <<- data.frame(ItemRef=as.character(),Ordered=as.character(),Fulfillable=as.character(),ItemQty=as.integer(),stringsAsFactors=FALSE)
 
   stock_verified_message <<- ""
@@ -899,7 +902,14 @@ server <- shinyServer(function(input, output, session) {
       }
       else {
         shinyalert("Success", paste("New Customer ID ", appData$LGCMAREA$CA_CUSTOMER_NUM, " successfully created", sep=""), type = "success",confirmButtonCol = "#54BA60")
-#SGAug2020        
+#SGAug2020
+        myentity = "Customer"
+        operation = "created"
+        reference = appData$LGCMAREA$CA_CUSTOMER_NUM
+        res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                    ,body=list(myentity = myentity,operation = operation,reference=reference),
+                    ,encode = "json")
+#SGAug2020
         if (refreshcustomer()) {
           newrefreshcustomer <- FALSE
           refreshcustomer(newrefreshcustomer)
@@ -959,6 +969,13 @@ server <- shinyServer(function(input, output, session) {
       }
       else {
         shinyalert("Success", "Customer Data successfully updated", type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
+        myentity = "Customer"
+        operation = "updated"
+        reference = input$table_customer_ref
+        res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                    ,body=list(myentity = myentity,operation = operation,reference=reference),
+                    ,encode = "json")
 #SGAug2020
         if (refreshcustomer()) {
           newrefreshcustomer <- FALSE
@@ -1444,6 +1461,13 @@ server <- shinyServer(function(input, output, session) {
       else {
         shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully updated", sep=""), type = "success",confirmButtonCol = "#54BA60")
 #SGAug2020
+        myentity = "Policy"
+        operation = "updated"
+        reference = input$selected_policy
+        res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                    ,body=list(myentity = myentity,operation = operation,reference=reference),
+                    ,encode = "json")    
+#SGAug2020        
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
         mr_policy_data <- fromJSON(urlname)
         accountdata1 <- fromJSON(urlname)
@@ -1507,6 +1531,13 @@ server <- shinyServer(function(input, output, session) {
         refreshPolicy(newrefreshPolicy)
       }
       shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully deleted", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020 
+      myentity = "Motor Policy"
+      operation = "deleted"
+      reference = paste(input$selected_policy,input$selected_customer,sep = "-")
+      res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                  ,body=list(myentity = myentity,operation = operation,reference=reference),
+                  ,encode = "json")    
 #SGAug2020      
     }
   })
@@ -1768,6 +1799,13 @@ server <- shinyServer(function(input, output, session) {
       else {
         shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully updated", sep=""), type = "success",confirmButtonCol = "#54BA60")
 #SGAug2020
+        myentity = "Policy"
+        operation = "updated"
+        reference = input$selected_policy
+        res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                    ,body=list(myentity = myentity,operation = operation,reference=reference),
+                    ,encode = "json")    
+#SGAug2020
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
         er_policy_data <- fromJSON(urlname)
         accountdata1 <- fromJSON(urlname)
@@ -1834,6 +1872,13 @@ server <- shinyServer(function(input, output, session) {
         refreshPolicy(newrefreshPolicy)
       }
       shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully deleted", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
+      myentity = "Endowment Policy"
+      operation = "deleted"
+      reference = paste(input$selected_policy,input$selected_customer,sep = "-")
+      res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                  ,body=list(myentity = myentity,operation = operation,reference=reference),
+                  ,encode = "json")
 #SGAug2020
     }
   })
@@ -2086,6 +2131,13 @@ server <- shinyServer(function(input, output, session) {
       else {
         shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully updated", sep=""), type = "success",confirmButtonCol = "#54BA60")
 #SGAug2020
+        myentity = "Policy"
+        operation = "updated"
+        reference = input$selected_policy
+        res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                    ,body=list(myentity = myentity,operation = operation,reference=reference),
+                    ,encode = "json")    
+#SGAug2020
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
         hr_policy_data <- fromJSON(urlname)
         accountdata1 <- fromJSON(urlname)
@@ -2152,6 +2204,13 @@ server <- shinyServer(function(input, output, session) {
         refreshPolicy(newrefreshPolicy)
       }
       shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully deleted", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
+      myentity = "House Policy"
+      operation = "deleted"
+      reference = paste(input$selected_policy,input$selected_customer,sep = "-")
+      res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                  ,body=list(myentity = myentity,operation = operation,reference=reference),
+                  ,encode = "json")    
 #SGAug2020
     }
   })
@@ -2402,6 +2461,13 @@ server <- shinyServer(function(input, output, session) {
         refreshPolicy(newrefreshPolicy)
       }
       shinyalert("Success", paste("Policy ID ", input$selected_policy, " successfully deleted", sep=""), type = "success",confirmButtonCol = "#54BA60")
+#SGAug2020
+      myentity = "Commercial Policy"
+      operation = "deleted"
+      reference = paste(input$selected_policy,input$selected_customer,sep = "-")
+      res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                  ,body=list(myentity = myentity,operation = operation,reference=reference),
+                  ,encode = "json")    
 #SGAug2020
     }
   })
