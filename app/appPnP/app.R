@@ -12,6 +12,7 @@ library(shinyjs)
 library(dplyr)
 library(rmarkdown)
 library(leaflet)
+library(gmailr)
 
 ui <- dashboardPage(
   skin = "blue",
@@ -877,6 +878,23 @@ server <- shinyServer(function(input, output, session) {
               updateActionButton(session, "RetrieveAccount", label = "Enter OTP")
               #updateActionButton(session, "SendOrder", label = "Confirm Order")
               #updateTabItems(session, "tabs", "dashboard2")
+##SGAug2020
+              gm_auth_configure(path  = "pnpstores.json")
+              options(
+                gargle_oauth_cache = ".secretPnP",
+                gargle_oauth_email = "pen.n.paper.stores@gmail.com"
+              )
+              gm_auth(email = "pen.n.paper.stores@gmail.com")
+              params <- list(df1=order_status,df2=PaymentTable,df3=Additionalinfo)
+              tempReport <- rmarkdown::render("PrintInvoice.Rmd",params = params)
+              rawHTML <- paste(readLines(tempReport), collapse="\n")
+              my_email_message <- gm_mime() %>%
+                gm_to("shami.gupta@gmail.com") %>%
+                gm_from("Pen & Paper Stores (pen.n.paper.stores@gmail.com)") %>%
+                gm_subject("Your Order Invoice") %>%
+                gm_html_body(rawHTML) 
+              gm_send_message(my_email_message)
+##SGAug2020   
               return("Order Successfully Placed")
             }
           }

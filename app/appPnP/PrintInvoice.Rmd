@@ -4,9 +4,6 @@ output:
   html_document:
     df_print: paged
 params:
-  df1: !r data(mtcars); mtcars
-  df2: !r data(mtcars); mtcars
-  df3: !r data(mtcars); mtcars
 header-includes:
 - \usepackage{caption}
 - \usepackage{float}
