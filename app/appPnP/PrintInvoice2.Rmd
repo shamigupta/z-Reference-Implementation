@@ -16,8 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 \captionsetup[table]{labelformat=empty}
 
-
-
+![](PnPStores1.png)
 
 #### Despatcher Details
 `r params$df3[1,1]`

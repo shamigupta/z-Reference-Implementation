@@ -831,8 +831,10 @@ server <- shinyServer(function(input, output, session) {
               return("Order Placement Failed")
             }
             else {
-              shinyalert("Success", "Order Successfully Placed", type = "success",confirmButtonCol = "#54BA60")
-              shinyalert("Success", paste("Refund Amount ", appData[[2]][[1]], " ", input$selected_currency, sep=""), type = "success",confirmButtonCol = "#54BA60")
+##SGAug2020    
+              #shinyalert("Success", "Order Successfully Placed", type = "success",confirmButtonCol = "#54BA60")
+              #shinyalert("Success", paste("Refund Amount ", appData[[2]][[1]], " ", input$selected_currency, sep=""), type = "success",confirmButtonCol = "#54BA60")
+##SGAug2020    
               #disable("RetrieveAccount")
               order_status <<- as.data.frame(matrix(unlist(appData[[1]]), ncol=3, byrow=TRUE), stringsAsFactors=FALSE)
               names(order_status) <<- c("ItemRef", "QtyRquested", "OrderPlaced")
@@ -879,21 +881,11 @@ server <- shinyServer(function(input, output, session) {
               #updateActionButton(session, "SendOrder", label = "Confirm Order")
               #updateTabItems(session, "tabs", "dashboard2")
 ##SGAug2020
-              gm_auth_configure(path  = "pnpstores.json")
-              options(
-                gargle_oauth_cache = ".secretPnP",
-                gargle_oauth_email = "pen.n.paper.stores@gmail.com"
+              shinyalert("Order Successfully Placed",
+                text=paste("Adjusted Refund ", appData[[2]][[1]], " ", input$selected_currency,"\n","Emaild ID for Invoice",sep=""), 
+                type = "input",inputType="character",confirmButtonCol = "#54BA60",
+                callbackR = mycallbackMail2Me
               )
-              gm_auth(email = "pen.n.paper.stores@gmail.com")
-              params <- list(df1=order_status,df2=PaymentTable,df3=Additionalinfo)
-              tempReport <- rmarkdown::render("PrintInvoice2.Rmd",params = params)
-              rawHTML <- paste(readLines(tempReport), collapse="\n")
-              my_email_message <- gm_mime() %>%
-                gm_to("shami.gupta@gmail.com") %>%
-                gm_from("Pen & Paper Stores (pen.n.paper.stores@gmail.com)") %>%
-                gm_subject("Your Order Invoice") %>%
-                gm_html_body(rawHTML) 
-              gm_send_message(my_email_message)
 ##SGAug2020   
               return("Order Successfully Placed")
             }
@@ -955,6 +947,29 @@ server <- shinyServer(function(input, output, session) {
     }
     
   })
+  
+##SGAug2020   
+  mycallbackMail2Me <- function(value) {
+    if (value != "") {
+      ##SGAug2020
+      gm_auth_configure(path  = "pnpstores.json")
+      options(
+        gargle_oauth_cache = ".secretPnP",
+        gargle_oauth_email = "pen.n.paper.stores@gmail.com"
+      )
+      gm_auth(email = "pen.n.paper.stores@gmail.com")
+      params <- list(df1=order_status,df2=PaymentTable,df3=Additionalinfo)
+      tempReport <- rmarkdown::render("PrintInvoice2.Rmd",params = params)
+      rawHTML <- paste(readLines(tempReport), collapse="\n")
+      my_email_message <- gm_mime() %>%
+        gm_to(value) %>%
+        gm_from("Pen & Paper Stores (pen.n.paper.stores@gmail.com)") %>%
+        gm_subject("Your Order Invoice") %>%
+        gm_html_body(rawHTML) 
+      gm_send_message(my_email_message)
+    }
+  }
+##SGAug2020   
   
   
   output$select_item_ref <- renderUI({
