@@ -4,9 +4,6 @@ output:
   html_document:
     df_print: paged
 params:
-  df1: !r data(mtcars); mtcars
-  df2: !r data(mtcars); mtcars
-  df3: !r data(mtcars); mtcars
 header-includes:
 - \usepackage{caption}
 - \usepackage{float}
@@ -20,9 +17,6 @@ knitr::opts_chunk$set(echo = TRUE)
 \captionsetup[table]{labelformat=empty}
 
 
-![](/srv/shiny-server/appPnP/www/PnPStores1.png)
-
-<!-- ![](PnPStores1.png) -->
 
 
 #### Despatcher Details

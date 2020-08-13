@@ -886,7 +886,7 @@ server <- shinyServer(function(input, output, session) {
               )
               gm_auth(email = "pen.n.paper.stores@gmail.com")
               params <- list(df1=order_status,df2=PaymentTable,df3=Additionalinfo)
-              tempReport <- rmarkdown::render("PrintInvoice.Rmd",params = params)
+              tempReport <- rmarkdown::render("PrintInvoice2.Rmd",params = params)
               rawHTML <- paste(readLines(tempReport), collapse="\n")
               my_email_message <- gm_mime() %>%
                 gm_to("shami.gupta@gmail.com") %>%
