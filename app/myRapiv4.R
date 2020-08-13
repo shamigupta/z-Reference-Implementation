@@ -142,6 +142,14 @@ function(myentity, operation, reference){
       claimdata$CA_CLAIM_NUM <- reference
       d1 <- claimdata[,c(6,7, 1:5)]
     }
+    if (d1$CA_C_OBSERVATIONS != "") {
+      y <- gsub("\\|","@",d1$CA_C_OBSERVATIONS,"@@@")
+      z <- unlist(str_split(y,"@@@"))
+      d1$CA_C_OBSERVATIONS <- z[1]
+      d1$CA_C_EVIDENCE <- z[2]
+    } else {
+      d1$CA_C_EVIDENCE <- ""
+    }
     print_policy_type = ""
   }
   
