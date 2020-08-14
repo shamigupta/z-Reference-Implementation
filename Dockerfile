@@ -22,4 +22,5 @@ RUN chmod -R 777 /var/log/supervisord/plumber2/
 RUN chmod -R 777 /srv/shiny-server/
 #WORKDIR /srv/shiny-server/
 #
+#
 ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
