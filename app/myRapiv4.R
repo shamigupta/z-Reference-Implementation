@@ -332,7 +332,9 @@ function(myentity, operation, reference){
     gargle_oauth_email = "gen.apps.insurance@gmail.com"
   )
   gm_auth(email = "gen.apps.insurance@gmail.com")
-  
+ 
+  salutation <- paste("Dear ",First_Name," ", Last_Name,",",sep="")
+   
   if(myentity == "Customer" && operation == "created") {
     welcome_message <- "General Insurance App welcomes you as a new customer."
     title_message <- "Welcome to GenApps Insurance"
