@@ -73,6 +73,16 @@ function(myentity, operation, reference){
     if (accountdata$LGCMAREA$CA_RETURN_CODE == 0) {
       d1 <- as.data.frame(accountdata$LGCMAREA$CA_CUSTOMER_REQUEST,stringsAsFactors=FALSE)
       names(d1) <- gsub("CA_PHONE_HOME","CA_BANK_ACT",names(d1))
+      pcount_qry <- paste("SELECT COUNT(*) AS COUNT from VPOLICY WHERE CUSTOMERNUMBER = ",reference,sep="")
+      res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
+                  ,body=list(myquerry = pcount_qry),
+                  ,encode = "json")
+      appPol <- content(res)
+      if (length(appPol) > 1) {
+        if (appPol[[2]][[2]] > 0 && length(appPol[[1]]) != 0) {
+          d1$CA_NUM_POLICIES <-  trimws(appPol[[1]][[1]]$COUNT)
+        }
+      }
     }
     print_policy_type = ""
   }
@@ -246,6 +256,16 @@ function(myentity, operation, reference){
     if (accountdata$LGCMAREA$CA_RETURN_CODE == 0) {
       d1 <- as.data.frame(accountdata$LGCMAREA$CA_CUSTOMER_REQUEST,stringsAsFactors=FALSE)
       names(d1) <- gsub("CA_PHONE_HOME","CA_BANK_ACT",names(d1))
+      pcount_qry <- paste("SELECT COUNT(*) AS COUNT from VPOLICY WHERE CUSTOMERNUMBER = ",reference,sep="")
+      res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
+                  ,body=list(myquerry = pcount_qry),
+                  ,encode = "json")
+      appPol <- content(res)
+      if (length(appPol) > 1) {
+        if (appPol[[2]][[2]] > 0 && length(appPol[[1]]) != 0) {
+          d1$CA_NUM_POLICIES <-  trimws(appPol[[1]][[1]]$COUNT)
+        }
+      }
     }
     print_policy_type = ""
   }
