@@ -1,0 +1,41 @@
+---
+title: "General Insurance Apps"
+output:
+  html_document:
+    df_print: paged
+params:
+header-includes:
+- \usepackage{caption}
+- \usepackage{float}
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Customer Statement
+
+\captionsetup[table]{labelformat=empty}
+
+![](GenApps2.png)
+
+&nbsp;
+
+**`r params$salutation`**
+
+`r params$welcome_message`
+
+`r params$header_message`
+
+
+```{r echo=FALSE, comment=NA}
+if (params$table_included) {
+  #names(params$print_data) <- c("                        ")
+  knitr::kable(params$print_data,format="markdown")
+}
+```
+
+&nbsp;
+**_Statement Print Date `r format(Sys.time(), '%d %B, %Y')`_**
+
+
+
