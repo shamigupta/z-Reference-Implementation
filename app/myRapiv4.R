@@ -362,7 +362,7 @@ function(myentity, operation, reference){
                   table_included = table_included,
                   print_data = d1)
   
-  tempReport <- rmarkdown::render("/srv/shiny-server/appFENAGenApps/GenApps.Rmd",params = params)
+  tempReport <- rmarkdown::render("/srv/shiny-server/appGenApps/GenApps.Rmd",params = params)
   rawHTML <- paste(readLines(tempReport), collapse="\n")
   
   
