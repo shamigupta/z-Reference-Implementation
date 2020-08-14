@@ -8,7 +8,6 @@ library(rJava)
 library(gmailr)
 library(pander)
 library(dplyr)
-library(stringr)
 
 #* Echo back the input
 #* @param msg The message to echo
