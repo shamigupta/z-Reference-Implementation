@@ -718,11 +718,16 @@ server <- shinyServer(function(input, output, session) {
 #############################################
 
   observeEvent(input$ViewArchitecture, {
-    
+    readRenviron("../.env")
+    cloudtype <- tolower(gsub("[^[:alpha:]]", "", Sys.getenv("CloudType")))
+    outfile = paste("./www/",cloudtype,".jpg",sep="")
      showModal(modalDialog(
        title = h4("Architecture"),
        size ="l",
-       HTML('<img src="P&PArchitecture.jpg" width="860">'),
+       renderImage({
+          list(src = outfile, contentType = 'image/png',width = 860, height = 420)
+        }, deleteFile = FALSE),
+       #HTML('<img src="P&PArchitecture.jpg" width="860">'),
        easyClose = FALSE,
        footer = modalButton("Dismiss")
      ))
