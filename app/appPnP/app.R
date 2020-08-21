@@ -481,11 +481,14 @@ server <- shinyServer(function(input, output, session) {
   
   
   output$delivery_message <- renderText({
-    
+    print("*****")
+    print(input$geolocation)
+    print(manual_lat())
+    print(manual_lng())
+    print("*****")
     if(!input$geolocation && manual_lat() == 0 && manual_lng() == 0) {
       ##SGAug2020
       shinyalert("Add Delivery Address",
-                 #text=paste("Adjusted Refund ", appData[[2]][[1]], " ", input$selected_currency,"\n","Emaild ID for Invoice",sep=""), 
                  type = "input",inputType="character",confirmButtonCol = "#3F27B3",
                  callbackR = getDeliveryAddress
       )
