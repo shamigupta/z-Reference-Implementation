@@ -482,17 +482,11 @@ server <- shinyServer(function(input, output, session) {
   
   output$delivery_message <- renderText({
     print("*****")
-    print(input$geolocation)
+    #print(input$geolocation)
     print(manual_lat())
     print(manual_lng())
     print("*****")
-    if(!exists("input$geolocation") && manual_lat() == 0 && manual_lng() == 0) {
-      shinyalert("Add Delivery Address",
-                 type = "input",inputType="character",confirmButtonCol = "#3F27B3",
-                 callbackR = getDeliveryAddress
-      )
-      return("Add Delivery location")
-    } else {
+    if(exists("input$geolocation")) {
       if(!input$geolocation && manual_lat() == 0 && manual_lng() == 0) {
         shinyalert("Add Delivery Address",
                    type = "input",inputType="character",confirmButtonCol = "#3F27B3",
@@ -500,12 +494,16 @@ server <- shinyServer(function(input, output, session) {
         )
         return("Add Delivery location")
       }
+    } else {
+      if(manual_lat() == 0 && manual_lng() == 0) {
+        shinyalert("Add Delivery Address",
+                   type = "input",inputType="character",confirmButtonCol = "#3F27B3",
+                   callbackR = getDeliveryAddress
+        )
+        return("Add Delivery location")
+      }
     }
-    
 
-    #print(paste("User Lat ",input$lat))
-    #print(paste("User Long",input$long))
-    
     showModal(modalDialog(
       title = "Please wait...",
       h4("Checking Delivery"),
@@ -993,7 +991,10 @@ server <- shinyServer(function(input, output, session) {
       if (responsedata$status == "OK") {
         manual_lat(responsedata$results$geometry$location$lat)
         manual_lng(responsedata$results$geometry$location$lng)
-      }    
+      } else {
+        manual_lat(0)
+        manual_lng(0)
+      }
     }
   }
   

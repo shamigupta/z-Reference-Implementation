@@ -575,7 +575,7 @@ function(savedata, myentity, operation, reference){
                   print_data = d1,
                   old_data = d2)
   
-  tempReport <- rmarkdown::render("GenApps2.Rmd",params = params)
+  tempReport <- rmarkdown::render("/srv/shiny-server/appGENApps/GenApps2.Rmd",params = params)
   rawHTML <- paste(readLines(tempReport), collapse="\n")
   
   
