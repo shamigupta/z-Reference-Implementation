@@ -593,9 +593,10 @@ server <- shinyServer(function(input, output, session) {
   AccountHolderName <<- ""
   PaymentTable <<- data.frame(BankName=as.character(),BankAccountUsed=as.character(),AccountHolderName=as.character(),DebitTxn=as.numeric(),CreditTxn=as.numeric(),TxnCurrency=as.character(),stringsAsFactors=FALSE)
   #basemicroserviceurl <<- "https://route2-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
-  basemicroserviceurl <<- "http://173.193.75.239:30674/"
-  #basemicroserviceurl <<- "http://localhost:8000/"
+  #basemicroserviceurl <<- "http://173.193.75.239:32334/"
+  basemicroserviceurl <<- "http://localhost:8000/"
 
+  "localhost:8000/"
   basecustomerdata <- data.frame()
   mrcommon <- data.frame()
   mrmotor <- data.frame()
@@ -623,8 +624,6 @@ server <- shinyServer(function(input, output, session) {
   deleteok <<- FALSE
   saveclaimtable <<- data.frame()
   selectedclaimdata <<- data.frame()
-  savecustomer <<- data.frame()
-  savepolicy <<- data.frame()
     
   
   output$show_customer_details = DT::renderDataTable({
@@ -723,11 +722,6 @@ server <- shinyServer(function(input, output, session) {
       removeModal()
       if (accountdata$LGCMAREA$CA_RETURN_CODE == 0) {
         basecustomerdata <<- as.data.frame(accountdata$LGCMAREA$CA_CUSTOMER_REQUEST,stringsAsFactors=FALSE)
-        savecustomer <<- basecustomerdata
-        names(savecustomer) <<- gsub("CA_PHONE_HOME","CA_BANK_ACT",names(savecustomer))
-        savecustomer[1,] <<- trimws(savecustomer[1,],"both")
-        savecustomer <<- as.data.frame(t(savecustomer),stringsAsFactors = FALSE)
-        names(savecustomer) <<- "Old"
       }
     }
     return(input$table_customer_ref)
@@ -979,8 +973,8 @@ server <- shinyServer(function(input, output, session) {
         myentity = "Customer"
         operation = "updated"
         reference = input$table_customer_ref
-        res <- POST(paste(emailserviceurl,"sendgmailGENApps2?",sep="")
-                    ,body=list(savedata = savecustomer,myentity = myentity,operation = operation,reference=reference),
+        res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                    ,body=list(myentity = myentity,operation = operation,reference=reference),
                     ,encode = "json")
 #SGAug2020
         if (refreshcustomer()) {
@@ -1201,10 +1195,6 @@ server <- shinyServer(function(input, output, session) {
       if ( mr_policy_data$LGCMAREA$CA_RETURN_CODE == 0) {
         mrcommon <<- as.data.frame(mr_policy_data$LGCMAREA$CA_POLICY_REQUEST$CA_POLICY_COMMON,stringsAsFactors=FALSE)
         mrmotor <<- as.data.frame(mr_policy_data$LGCMAREA$CA_POLICY_REQUEST$CA_MOTOR,stringsAsFactors=FALSE)
-        savepolicy <<- cbind(mrcommon,mrmotor)
-        savepolicy[1,] <<- trimws(savepolicy[1,],"both")
-        savepolicy <<- as.data.frame(t(savepolicy),stringsAsFactors = FALSE)
-        names(savepolicy) <<- "Old"
         mr_counter <<- mr_counter + 1
         mr_refresh(mr_counter)
         return("Policy Details Retrived")
@@ -1474,8 +1464,8 @@ server <- shinyServer(function(input, output, session) {
         myentity = "Policy"
         operation = "updated"
         reference = input$selected_policy
-        res <- POST(paste(emailserviceurl,"sendgmailGENApps2?",sep="")
-                    ,body=list(savedata = savepolicy, myentity = myentity,operation = operation,reference=reference),
+        res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                    ,body=list(myentity = myentity,operation = operation,reference=reference),
                     ,encode = "json")    
 #SGAug2020        
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12MotorPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
@@ -1545,8 +1535,8 @@ server <- shinyServer(function(input, output, session) {
       myentity = "Motor Policy"
       operation = "deleted"
       reference = paste(input$selected_policy,input$selected_customer,sep = "-")
-      res <- POST(paste(emailserviceurl,"sendgmailGENApps2?",sep="")
-                  ,body=list(savedata = savepolicy, myentity = myentity,operation = operation,reference=reference),
+      res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                  ,body=list(myentity = myentity,operation = operation,reference=reference),
                   ,encode = "json")    
 #SGAug2020      
     }
@@ -1569,10 +1559,6 @@ server <- shinyServer(function(input, output, session) {
       if ( er_policy_data$LGCMAREA$CA_RETURN_CODE == 0) {
         ercommon <<- as.data.frame(er_policy_data$LGCMAREA$CA_POLICY_REQUEST$CA_POLICY_COMMON,stringsAsFactors=FALSE)
         erendowment <<- as.data.frame(er_policy_data$LGCMAREA$CA_POLICY_REQUEST$CA_ENDOWMENT,stringsAsFactors=FALSE)
-        savepolicy <<- cbind(ercommon,erendowment)
-        savepolicy[1,] <<- trimws(savepolicy[1,],"both")
-        savepolicy <<- as.data.frame(t(savepolicy),stringsAsFactors = FALSE)
-        names(savepolicy) <<- "Old"
         er_counter <<- er_counter + 1
         er_refresh(er_counter)
         return("Policy Details Retrived")
@@ -1816,8 +1802,8 @@ server <- shinyServer(function(input, output, session) {
         myentity = "Policy"
         operation = "updated"
         reference = input$selected_policy
-        res <- POST(paste(emailserviceurl,"sendgmailGENApps2?",sep="")
-                    ,body=list(savedata = savepolicy, myentity = myentity,operation = operation,reference=reference),
+        res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                    ,body=list(myentity = myentity,operation = operation,reference=reference),
                     ,encode = "json")    
 #SGAug2020
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12EndowmentPolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
@@ -1890,8 +1876,8 @@ server <- shinyServer(function(input, output, session) {
       myentity = "Endowment Policy"
       operation = "deleted"
       reference = paste(input$selected_policy,input$selected_customer,sep = "-")
-      res <- POST(paste(emailserviceurl,"sendgmailGENApps2?",sep="")
-                  ,body=list(savedata = savepolicy, myentity = myentity,operation = operation,reference=reference),
+      res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                  ,body=list(myentity = myentity,operation = operation,reference=reference),
                   ,encode = "json")
 #SGAug2020
     }
@@ -1916,10 +1902,6 @@ server <- shinyServer(function(input, output, session) {
       if ( hr_policy_data$LGCMAREA$CA_RETURN_CODE == 0) {
         hrcommon <<- as.data.frame(hr_policy_data$LGCMAREA$CA_POLICY_REQUEST$CA_POLICY_COMMON,stringsAsFactors=FALSE)
         hrhouse <<- as.data.frame(hr_policy_data$LGCMAREA$CA_POLICY_REQUEST$CA_HOUSE,stringsAsFactors=FALSE)
-        savepolicy <<- cbind(hrcommon,hrhouse)
-        savepolicy[1,] <<- trimws(savepolicy[1,],"both")
-        savepolicy <<- as.data.frame(t(savepolicy),stringsAsFactors = FALSE)
-        names(savepolicy) <<- "Old"
         hr_counter <<- hr_counter + 1
         hr_refresh(hr_counter)
         return("Policy Details Retrived")
@@ -2152,8 +2134,8 @@ server <- shinyServer(function(input, output, session) {
         myentity = "Policy"
         operation = "updated"
         reference = input$selected_policy
-        res <- POST(paste(emailserviceurl,"sendgmailGENApps2?",sep="")
-                    ,body=list(savedata = savepolicy, myentity = myentity,operation = operation,reference=reference),
+        res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                    ,body=list(myentity = myentity,operation = operation,reference=reference),
                     ,encode = "json")    
 #SGAug2020
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12HousePolicy/Policy/",input$selected_customer,",",input$selected_policy,sep="")
@@ -2226,8 +2208,8 @@ server <- shinyServer(function(input, output, session) {
       myentity = "House Policy"
       operation = "deleted"
       reference = paste(input$selected_policy,input$selected_customer,sep = "-")
-      res <- POST(paste(emailserviceurl,"sendgmailGENApps2?",sep="")
-                  ,body=list(savedata = savepolicy, myentity = myentity,operation = operation,reference=reference),
+      res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                  ,body=list(myentity = myentity,operation = operation,reference=reference),
                   ,encode = "json")    
 #SGAug2020
     }
@@ -2253,10 +2235,6 @@ server <- shinyServer(function(input, output, session) {
       if ( cr_policy_data$LGCMAREA$CA_RETURN_CODE == 0) {
         crcommon <<- as.data.frame(cr_policy_data$LGCMAREA$CA_POLICY_REQUEST$CA_POLICY_COMMON,stringsAsFactors=FALSE)
         crcommercial <<- as.data.frame(cr_policy_data$LGCMAREA$CA_POLICY_REQUEST$CA_COMMERCIAL,stringsAsFactors=FALSE)
-        savepolicy <<- cbind(crcommon,crcommercial)
-        savepolicy[1,] <<- trimws(savepolicy[1,],"both")
-        savepolicy <<- as.data.frame(t(savepolicy),stringsAsFactors = FALSE)
-        names(savepolicy) <<- "Old"
         cr_counter <<- cr_counter + 1
         cr_refresh(cr_counter)
         return("Policy Details Retrived")

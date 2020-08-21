@@ -105,12 +105,36 @@ ui <- dashboardPage(
         
       )
     ),
-
+    # tags$script('
+    #           $(document).ready(function () {
+    #           navigator.geolocation.getCurrentPosition(onSuccess, onError);
+    #           
+    #           function onError (err) {
+    #           Shiny.onInputChange("geolocation", false);
+    #           }
+    #           
+    #           function onSuccess (position) {
+    #           setTimeout(function () {
+    #           var coords = position.coords;
+    #           console.log(coords.latitude + ", " + coords.longitude);
+    #           Shiny.onInputChange("geolocation", true);
+    #           Shiny.onInputChange("lat", coords.latitude);
+    #           Shiny.onInputChange("long", coords.longitude);
+    #           }, 1100)
+    #           }
+    #           });
+    # '),
+    
     tags$head( 
       tags$style(HTML(".main-sidebar { font-size: 16px; }")) #change the font size to 20
     ),
     tags$head(
       tags$style(HTML(
+        #'.skin-blue .main-sidebar{background-color: black;}',
+        #'.skin-blue .main-sidebar .sidebar{color: red;}',
+        #'.skin-blue .main-sidebar .sidebar .sidebar-menu{background-color: grey;}',
+        #'.skin-blue .main-sidebar .sidebar .sidebar-menu .active a{background-color: red;}',
+        #'.skin-blue .main-header .logo{background-color: black;}',
         '.content-wrapper, .right-side {background-color: darkcyan;}',
         '.box.box-solid.box-primary>.box-header {
         background:rgba(0, 0, 54 ,0);
@@ -323,10 +347,6 @@ server <- shinyServer(function(input, output, session) {
   ReappData$a <<- ""
   ReappData$b <<- ""
   order_unit_price <<- reactiveVal(0)
-  manual_lat <<- reactiveVal(0)
-  manual_lng <<- reactiveVal(0)
-  input_long <<- 0
-  input_lat <<- 0
   additemstolist <- reactiveVal(FALSE)
   stock_verfied_reactive <- reactiveVal(FALSE)
   create_new_order_reactive <- reactiveVal(FALSE)
@@ -369,7 +389,6 @@ server <- shinyServer(function(input, output, session) {
   AccountHolderName <<- ""
   PaymentTable <<- data.frame(BankName=as.character(),BankAccountUsed=as.character(),AccountHolderName=as.character(),DebitTxn=as.numeric(),CreditTxn=as.numeric(),TxnCurrency=as.character(),stringsAsFactors=FALSE)
   #basemicroserviceurl <<- "https://route2-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
-  #basemicroserviceurl <<- "http://173.193.75.239:30674/"
   basemicroserviceurl <<- "http://localhost:8000/"
   
   output$select_currency <- renderUI({
@@ -482,15 +501,8 @@ server <- shinyServer(function(input, output, session) {
   
   output$delivery_message <- renderText({
     
-    if(!input$geolocation && manual_lat() == 0 && manual_lng() == 0) {
-      ##SGAug2020
-      shinyalert("Add Delivery Address",
-                 #text=paste("Adjusted Refund ", appData[[2]][[1]], " ", input$selected_currency,"\n","Emaild ID for Invoice",sep=""), 
-                 type = "input",inputType="character",confirmButtonCol = "#3F27B3",
-                 callbackR = getDeliveryAddress
-      )
-      ##SGAug2020   
-      return("Add Delivery location")
+    if(!input$geolocation) {
+      return("Cannot be delivered to your location")
     }
 
     #print(paste("User Lat ",input$lat))
@@ -503,22 +515,15 @@ server <- shinyServer(function(input, output, session) {
       footer = NULL
     ))
     
-    if(input$geolocation) {
-      input_long <<- input$long
-      input_lat <<- input$lat
-    } else {
-      input_long <<- manual_lng()
-      input_lat <<- manual_lat()
-    }
     
-    store_runsql <- paste("select  CITY_ID, CITY_NAME,  LAT, LONG, sqrt(((long-(",input_long,"))*(long-(",input_long,")))+((lat-(",input_lat,"))*(lat-(",input_lat,")))) as A from world_city  order by A Fetch first 5 rows only",sep="")
+    store_runsql <- paste("select  CITY_ID, CITY_NAME,  LAT, LONG, sqrt(((long-(",input$long,"))*(long-(",input$long,")))+((lat-(",input$lat,"))*(lat-(",input$lat,")))) as A from world_city  order by A Fetch first 5 rows only",sep="")
     
     res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
                 ,body=list(myquerry = store_runsql),
                 ,encode = "json")
     
     appData <- content(res)
-	  print(appData)
+	print(appData)
     if (appData[[2]][[2]] > 0) {
       mywarehouse <- as.data.frame(matrix(unlist(appData[[1]]), ncol=appData[[2]][[2]], byrow=TRUE), stringsAsFactors=FALSE)
       names(mywarehouse) <- c("WarehouseID","WarehouseName","WarehouseLat","WarehouseLong","cartesian")
@@ -532,7 +537,7 @@ server <- shinyServer(function(input, output, session) {
     i <- 1
     
     while (!warehouse_found && i <= nrow(mywarehouse)) {
-      distance_get_url <- paste(google_distance_base_url,mywarehouse[i,]$WarehouseLat,",",mywarehouse[i,]$WarehouseLong,"&destinations=",input_lat,",",input_long,google_distance_api_key,sep="")
+      distance_get_url <- paste(google_distance_base_url,mywarehouse[i,]$WarehouseLat,",",mywarehouse[i,]$WarehouseLong,"&destinations=",input$lat,",",input$long,google_distance_api_key,sep="")
       #print(paste("Iteration ",i))
       #print(paste("Url ",distance_get_url))
       responsedata <- fromJSON(distance_get_url)
@@ -562,14 +567,14 @@ server <- shinyServer(function(input, output, session) {
           slat <<- as.numeric(warehouse$WarehouseLat)
           slong <<- as.numeric(warehouse$WarehouseLong)
           google_route_base_url <- "https://maps.googleapis.com/maps/api/directions/json?origin="
-          get_route_url <- paste(google_route_base_url,slat,",",slong,"&destination=",input_lat,",",input_long,"&key=AIzaSyBggeTxDlyA7CcJq7hWhHPFgc10kIqLFH8",sep="")
+          get_route_url <- paste(google_route_base_url,slat,",",slong,"&destination=",input$lat,",",input$long,"&key=AIzaSyBggeTxDlyA7CcJq7hWhHPFgc10kIqLFH8",sep="")
           responsedata <- fromJSON(get_route_url)
           if (responsedata[[3]] == "OK") {
             polybasedata <<- data.frame(responsedata$routes$legs[[1]]$steps[[1]]$start_location$lat, responsedata$routes$legs[[1]]$steps[[1]]$start_location$lng,responsedata$routes$legs[[1]]$steps[[1]]$end_location$lat,responsedata$routes$legs[[1]]$steps[[1]]$end_location$lng)
             names(polybasedata) <<- c("StartLat","StartLong","EndLat","EndLong")
           }
           else {
-            polybasedata <<- data.frame(StartLat=slat,StartLong=slong,EndLat=input_lat,EndLong=input_long)
+            polybasedata <<- data.frame(StartLat=slat,StartLong=slong,EndLat=input$lat,EndLong=input$long)
           }
           #inter <<- geosphere::gcIntermediate(c(slong, slat), c(input$long, input$lat), n=50, addStartEnd=TRUE)
         }
@@ -596,12 +601,16 @@ server <- shinyServer(function(input, output, session) {
   
     
     leaflet() %>%
-      setView(lng = input_long, lat = input_lat, zoom=16) %>%
+      setView(lng = input$long, lat = input$lat, zoom=16) %>%
       addTiles(options = providerTileOptions(noWrap = TRUE)) %>%
-      addAwesomeMarkers(lng=input_long, lat=input_lat, icon=icons) %>%
+      addAwesomeMarkers(lng=input$long, lat=input$lat, icon=icons) %>%
       addMarkers(lng=slong, lat=slat) %>%
-      fitBounds(slong, slat, input_long, input_lat) %>%
+      fitBounds(slong, slat, input$long, input$lat) %>%
+      #lines(inter)
       addPolylines(lng=polybasedata$StartLong, lat=polybasedata$StartLat, color = "darkred", weight = 3)
+      #addPolylines(lng=c(polybasedata$StartLong, polybasedata$EndLong), lat=c(polybasedata$StartLat, polybasedata$EndLat),color = "darkred", weight = 2)
+      #addPolylines(lng=c(slong, input$long), lat=c(slat, input$lat),color = "darkred", weight = 4, dashArray =c(10,10))
+          #addMouseCoordinates(native.crs = TRUE)
   })
 
   observeEvent(input$incidentmap_click, {
@@ -966,20 +975,6 @@ server <- shinyServer(function(input, output, session) {
     }
   }
 ##SGAug2020   
-  
-  getDeliveryAddress <- function(value) {
-    if (value != "") {
-      LandmarkName <- trimws(gsub("\\s+", " ", value))
-      ModLandmarkName <- gsub("\\ ","\\+",LandmarkName) 
-      landmark_found <- FALSE
-      get_milestone_url <- paste("https://maps.googleapis.com/maps/api/geocode/json?address=",ModLandmarkName,"&key=AIzaSyBggeTxDlyA7CcJq7hWhHPFgc10kIqLFH8",sep="")
-      responsedata <- fromJSON(get_milestone_url)
-      if (responsedata$status == "OK") {
-        manual_lat(responsedata$results$geometry$location$lat)
-        manual_lng(responsedata$results$geometry$location$lng)
-      }    
-    }
-  }
   
   
   output$select_item_ref <- renderUI({
