@@ -572,7 +572,6 @@ function(savedata, myentity, operation, reference){
                   welcome_message = welcome_message,
                   header_message = header_message,
                   table_included = table_included,
-                  evidencepic = evidencepic,
                   print_data = d1,
                   old_data = d2)
   

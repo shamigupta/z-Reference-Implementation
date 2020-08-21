@@ -486,15 +486,22 @@ server <- shinyServer(function(input, output, session) {
     print(manual_lat())
     print(manual_lng())
     print("*****")
-    if(!input$geolocation && manual_lat() == 0 && manual_lng() == 0) {
-      ##SGAug2020
+    if(!exists("input$geolocation") && manual_lat() == 0 && manual_lng() == 0) {
       shinyalert("Add Delivery Address",
                  type = "input",inputType="character",confirmButtonCol = "#3F27B3",
                  callbackR = getDeliveryAddress
       )
-      ##SGAug2020   
       return("Add Delivery location")
+    } else {
+      if(!input$geolocation && manual_lat() == 0 && manual_lng() == 0) {
+        shinyalert("Add Delivery Address",
+                   type = "input",inputType="character",confirmButtonCol = "#3F27B3",
+                   callbackR = getDeliveryAddress
+        )
+        return("Add Delivery location")
+      }
     }
+    
 
     #print(paste("User Lat ",input$lat))
     #print(paste("User Long",input$long))
@@ -506,9 +513,15 @@ server <- shinyServer(function(input, output, session) {
       footer = NULL
     ))
     
-    if(input$geolocation) {
-      input_long <<- input$long
-      input_lat <<- input$lat
+    
+    if (exists("input$geolocation")) {
+      if(input$geolocation) {
+        input_long <<- input$long
+        input_lat <<- input$lat
+      } else {
+        input_long <<- manual_lng()
+        input_lat <<- manual_lat()
+      }
     } else {
       input_long <<- manual_lng()
       input_lat <<- manual_lat()
