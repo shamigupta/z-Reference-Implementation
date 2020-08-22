@@ -486,7 +486,7 @@ server <- shinyServer(function(input, output, session) {
     print(manual_lat())
     print(manual_lng())
     print("*****")
-    if(exists("input$geolocation")) {
+    if(!is.na(input$geolocation)) {
       if(!input$geolocation && manual_lat() == 0 && manual_lng() == 0) {
         shinyalert("Add Delivery Address",
                    type = "input",inputType="character",confirmButtonCol = "#3F27B3",
@@ -512,7 +512,7 @@ server <- shinyServer(function(input, output, session) {
     ))
     
     
-    if (exists("input$geolocation")) {
+    if (!is.na(input$geolocation)) {
       if(input$geolocation) {
         input_long <<- input$long
         input_lat <<- input$lat
