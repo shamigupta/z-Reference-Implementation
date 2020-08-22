@@ -323,8 +323,8 @@ server <- shinyServer(function(input, output, session) {
   ReappData$a <<- ""
   ReappData$b <<- ""
   order_unit_price <<- reactiveVal(0)
-  manual_lat <<- reactiveVal(0)
-  manual_lng <<- reactiveVal(0)
+  manual_lat <<- reactiveVal(998)
+  manual_lng <<- reactiveVal(998)
   input_long <<- 0
   input_lat <<- 0
   additemstolist <- reactiveVal(FALSE)
@@ -369,8 +369,8 @@ server <- shinyServer(function(input, output, session) {
   AccountHolderName <<- ""
   PaymentTable <<- data.frame(BankName=as.character(),BankAccountUsed=as.character(),AccountHolderName=as.character(),DebitTxn=as.numeric(),CreditTxn=as.numeric(),TxnCurrency=as.character(),stringsAsFactors=FALSE)
   #basemicroserviceurl <<- "https://route2-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
-  #basemicroserviceurl <<- "http://173.193.75.239:30674/"
-  basemicroserviceurl <<- "http://localhost:8000/"
+  basemicroserviceurl <<- "http://173.193.75.239:30833/"
+  #basemicroserviceurl <<- "http://localhost:8000/"
   
   output$select_currency <- renderUI({
     z1 <- as.data.frame(fromJSON("http://data.fixer.io/api/symbols?access_key=79dc687089494f9b6ff9cf4eb66040f6"))
@@ -487,7 +487,7 @@ server <- shinyServer(function(input, output, session) {
     print(manual_lng())
     print("*****")
     if(!is.na(input$geolocation)) {
-      if(!input$geolocation && manual_lat() == 0 && manual_lng() == 0) {
+      if(!input$geolocation && abs(manual_lat()) > 200 && abs(manual_lng()) > 200) {
         shinyalert("Add Delivery Address",
                    type = "input",inputType="character",confirmButtonCol = "#3F27B3",
                    callbackR = getDeliveryAddress
@@ -988,12 +988,15 @@ server <- shinyServer(function(input, output, session) {
       landmark_found <- FALSE
       get_milestone_url <- paste("https://maps.googleapis.com/maps/api/geocode/json?address=",ModLandmarkName,"&key=AIzaSyBggeTxDlyA7CcJq7hWhHPFgc10kIqLFH8",sep="")
       responsedata <- fromJSON(get_milestone_url)
+      #print(responsedata$status)
       if (responsedata$status == "OK") {
         manual_lat(responsedata$results$geometry$location$lat)
         manual_lng(responsedata$results$geometry$location$lng)
       } else {
-        manual_lat(0)
-        manual_lng(0)
+        x <- manual_lat() - 1
+        y <- manual_lng() - 1
+        manual_lat(x)
+        manual_lng(y)
       }
     }
   }
