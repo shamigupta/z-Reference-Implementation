@@ -369,8 +369,8 @@ server <- shinyServer(function(input, output, session) {
   AccountHolderName <<- ""
   PaymentTable <<- data.frame(BankName=as.character(),BankAccountUsed=as.character(),AccountHolderName=as.character(),DebitTxn=as.numeric(),CreditTxn=as.numeric(),TxnCurrency=as.character(),stringsAsFactors=FALSE)
   #basemicroserviceurl <<- "https://route2-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
-  basemicroserviceurl <<- "http://173.193.75.239:30833/"
-  #basemicroserviceurl <<- "http://localhost:8000/"
+  #basemicroserviceurl <<- "http://173.193.75.239:30833/"
+  basemicroserviceurl <<- "http://localhost:8000/"
   
   output$select_currency <- renderUI({
     z1 <- as.data.frame(fromJSON("http://data.fixer.io/api/symbols?access_key=79dc687089494f9b6ff9cf4eb66040f6"))
