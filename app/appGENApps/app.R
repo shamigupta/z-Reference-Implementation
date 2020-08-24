@@ -1418,7 +1418,7 @@ server <- shinyServer(function(input, output, session) {
   
   output$update_mfg_date_mu <- renderUI({
     input$update_policy_request_mr
-    dateInput("accept_mfg_date_mu", h4(strong("Date Manufactured"), style="font-style: bold; color: darkblue"),format="yyyy-mm-dd",value = mrcommon$CA_M_MANUFACTURED)
+    dateInput("accept_mfg_date_mu", h4(strong("Date Manufactured"), style="font-style: bold; color: darkblue"),format="yyyy-mm-dd",value = mrmotor$CA_M_MANUFACTURED)
   })
 
   
@@ -2291,7 +2291,7 @@ server <- shinyServer(function(input, output, session) {
   output$display_policy_expiry_date_cr <- renderText({
     cr_refresh()
     input$selected_type
-    return(crcommon$CA_EXPIRY_DATE)
+    return(crcommon$c)
   })
   
   output$display_CustomerName_cr <- renderText({
