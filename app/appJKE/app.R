@@ -383,9 +383,11 @@ server <- shinyServer(function(input, output, session) {
   OTPValidated <- FALSE
   show_welcome <- reactiveVal(TRUE)
   #basemicroserviceurl <- "https://dvm-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
+  #basemicroserviceurl <<- "http://173.193.75.239:31383/"
+  #emailserviceurl <<- "http://173.193.75.239:30632/"
   basemicroserviceurl <<- "http://localhost:8000/"
   emailserviceurl <<- "http://localhost:8100/"
-
+  
   output$mortgage_message <- renderText({
     if (!is.numeric(input$accept_mortgage_amt)) {
       disable("get_mortgage_options")
@@ -989,7 +991,7 @@ server <- shinyServer(function(input, output, session) {
           return("Unexpected Error")
         }
         res <- POST(paste(emailserviceurl,"sendgmailJKE?",sep="")
-                    ,body=list(AccountNum = basedatadeposit$NUMB,TxnType = "Credit",TxnAmount=paste("$",round(input$accept_deposit_amount / rate), 2),sep="")
+                    ,body=list(AccountNum = basedatadeposit$NUMB,TxnType = "Credit",TxnAmount=paste("$",round(input$accept_deposit_amount / rate, 2),sep=""))
                     ,encode = "json")
         basedatadeposit <<- as.data.frame(accountdata[[1]][[2]][[1]],stringsAsFactors = F)
         if (refreshbalance()) {
@@ -1196,7 +1198,7 @@ server <- shinyServer(function(input, output, session) {
       if (appData[[1]][[1]][[1]][[2]] == 0) {
         #RetrieveAccount4withdrawalpressedcount <<- input$RetrieveAccount4withdrawal
         res <- POST(paste(emailserviceurl,"sendgmailJKE?",sep="")
-                    ,body=list(AccountNum = basedatawithdrawal$NUMB,TxnType = "Debit",TxnAmount=paste("$",round(input$accept_withdrawal_amount / rate), 2),sep="")
+                    ,body=list(AccountNum = basedatawithdrawal$NUMB,TxnType = "Debit",TxnAmount=paste("$",round(input$accept_withdrawal_amount / rate, 2),sep=""))
                     ,encode = "json")
         readRenviron("../.env")
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
