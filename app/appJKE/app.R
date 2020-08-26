@@ -384,7 +384,7 @@ server <- shinyServer(function(input, output, session) {
   show_welcome <- reactiveVal(TRUE)
   #basemicroserviceurl <- "https://dvm-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
   basemicroserviceurl <<- "http://localhost:8000/"
-  
+  emailserviceurl <<- "http://localhost:8100/"
 
   output$mortgage_message <- renderText({
     if (!is.numeric(input$accept_mortgage_amt)) {
@@ -677,6 +677,9 @@ server <- shinyServer(function(input, output, session) {
     
       if (appData[[1]][[1]][[1]][[2]] == 0) {
         shinyalert("Success", "Account succesfully created.", type = "success",confirmButtonCol = "#54BA60")
+        res <- POST(paste(emailserviceurl,"sendgmailJKE?",sep="")
+                    ,body=list(AccountNum = str_pad(input$accept_add_account_ref,6,pad="0"),TxnType = "New",TxnAmount=""),
+                    ,encode = "json")
         return("Account Created")
 #SGAug2020        
       }
@@ -811,6 +814,9 @@ server <- shinyServer(function(input, output, session) {
       
       if (appData$JKEBCOMM$LINK$LINK_COMM$RCODE == 0) {
         #RetrieveAccount4updatepressedcount <<- input$RetrieveAccount4update
+        res <- POST(paste(emailserviceurl,"sendgmailJKE?",sep="")
+                    ,body=list(AccountNum = basedata$NUMB,TxnType = "Update",TxnAmount=""),
+                    ,encode = "json")
         readRenviron("../.env")
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
         accountdata <- fromJSON(urlname)
@@ -821,19 +827,20 @@ server <- shinyServer(function(input, output, session) {
           return("Unexpected Error")
         }
         basedata <<- as.data.frame(accountdata[[1]][[2]][[1]],stringsAsFactors = F)
+        shinyalert("Success", "Account successfully updated", type = "success",confirmButtonCol = "#54BA60")
         #AUTH_ID="MAZTI5MWUZZDY5NTCYYJ"
         #AUTH_TOKEN="YzAyM2ExNjdiOTA0YjA2NTdiNzhmOTkyOTBmZWIx"
-        account_masked <- paste(substring(basedata$NUMB,1,1),"X",substring(basedata$NUMB,3,3),"X",substring(basedata$NUMB,5,5),"X",sep="")
-        message <- paste("Account Holder information for JKEBank Account ", account_masked, " is successfully updated",sep="")
-        target_no <- gsub("\\+","",basedata$PHONE)
-        #url="https://api.plivo.com/v1/Account/MAZTI5MWUZZDY5NTCYYJ/Message/"
-        x <- POST(smsurl,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src=basemobilenumber,dst=target_no,text=message))
-        if(x[[2]] == 400){
-          shinyalert("Warning", "Account successfully updated but cannot send sms - Please register Mobile Number", type = "warning",confirmButtonCol = "#E74C3C")
-        }
-        else {
-          shinyalert("Success", "Account successfully updated", type = "success",confirmButtonCol = "#54BA60")
-        }
+        # account_masked <- paste(substring(basedata$NUMB,1,1),"X",substring(basedata$NUMB,3,3),"X",substring(basedata$NUMB,5,5),"X",sep="")
+        # message <- paste("Account Holder information for JKEBank Account ", account_masked, " is successfully updated",sep="")
+        # target_no <- gsub("\\+","",basedata$PHONE)
+        # #url="https://api.plivo.com/v1/Account/MAZTI5MWUZZDY5NTCYYJ/Message/"
+        # x <- POST(smsurl,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src=basemobilenumber,dst=target_no,text=message))
+        # if(x[[2]] == 400){
+        #   shinyalert("Warning", "Account successfully updated but cannot send sms - Please register Mobile Number", type = "warning",confirmButtonCol = "#E74C3C")
+        # }
+        # else {
+        #   shinyalert("Success", "Account successfully updated", type = "success",confirmButtonCol = "#54BA60")
+        # }
         #SGAug2020
         return("Account Updated")
       }
@@ -981,6 +988,9 @@ server <- shinyServer(function(input, output, session) {
         if(accountdata[[1]][[1]][[1]][[2]] != 0){
           return("Unexpected Error")
         }
+        res <- POST(paste(emailserviceurl,"sendgmailJKE?",sep="")
+                    ,body=list(AccountNum = basedatadeposit$NUMB,TxnType = "Credit",TxnAmount=paste("$",round(input$accept_deposit_amount / rate), 2),sep="")
+                    ,encode = "json")
         basedatadeposit <<- as.data.frame(accountdata[[1]][[2]][[1]],stringsAsFactors = F)
         if (refreshbalance()) {
           newrefreshbalance <- FALSE
@@ -991,19 +1001,20 @@ server <- shinyServer(function(input, output, session) {
           refreshbalance(newrefreshbalance)
         }
         disable("DepositAccount")
+        shinyalert("Success", "Deposit Request processed", type = "success",confirmButtonCol = "#54BA60")
         #shinyalert("Success", "Deposit Request processed", type = "success")
         #AUTH_ID="MAZTI5MWUZZDY5NTCYYJ"
         #AUTH_TOKEN="YzAyM2ExNjdiOTA0YjA2NTdiNzhmOTkyOTBmZWIx"
-        account_masked <- paste(substring(basedatadeposit$NUMB,1,1),"X",substring(basedatadeposit$NUMB,3,3),"X",substring(basedatadeposit$NUMB,5,5),"X",sep="")
-        message <- paste("An amount of ", input$selected_deposit_currency, " ", input$accept_deposit_amount, " was credited to JKEBank account number ", account_masked, ". The updated balance is ", basedatadeposit$AMOUNT,sep="")
-        target_no <- gsub("\\+","",basedatadeposit$PHONE)
-        #url="https://api.plivo.com/v1/Account/MAZTI5MWUZZDY5NTCYYJ/Message/"
-        x <- POST(smsurl,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src=basemobilenumber,dst=target_no,text=message))
-        if(x[[2]] == 400){
-          shinyalert("Warning", "Deposit Request processed - But cannot send sms. Please register your mobile", type = "warning",confirmButtonCol = "#E74C3C")
-        }else {
-          shinyalert("Success", "Deposit Request processed", type = "success",confirmButtonCol = "#54BA60")
-        }
+        # account_masked <- paste(substring(basedatadeposit$NUMB,1,1),"X",substring(basedatadeposit$NUMB,3,3),"X",substring(basedatadeposit$NUMB,5,5),"X",sep="")
+        # message <- paste("An amount of ", input$selected_deposit_currency, " ", input$accept_deposit_amount, " was credited to JKEBank account number ", account_masked, ". The updated balance is ", basedatadeposit$AMOUNT,sep="")
+        # target_no <- gsub("\\+","",basedatadeposit$PHONE)
+        # #url="https://api.plivo.com/v1/Account/MAZTI5MWUZZDY5NTCYYJ/Message/"
+        # x <- POST(smsurl,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src=basemobilenumber,dst=target_no,text=message))
+        # if(x[[2]] == 400){
+        #   shinyalert("Warning", "Deposit Request processed - But cannot send sms. Please register your mobile", type = "warning",confirmButtonCol = "#E74C3C")
+        # }else {
+        #   shinyalert("Success", "Deposit Request processed", type = "success",confirmButtonCol = "#54BA60")
+        # }
         #SGAug2020
         return("Deposit accepted")
       }
@@ -1184,6 +1195,9 @@ server <- shinyServer(function(input, output, session) {
       
       if (appData[[1]][[1]][[1]][[2]] == 0) {
         #RetrieveAccount4withdrawalpressedcount <<- input$RetrieveAccount4withdrawal
+        res <- POST(paste(emailserviceurl,"sendgmailJKE?",sep="")
+                    ,body=list(AccountNum = basedatawithdrawal$NUMB,TxnType = "Debit",TxnAmount=paste("$",round(input$accept_withdrawal_amount / rate), 2),sep="")
+                    ,encode = "json")
         readRenviron("../.env")
         urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
         accountdata <- fromJSON(urlname)
@@ -1201,21 +1215,22 @@ server <- shinyServer(function(input, output, session) {
           newrefreshbalancewithdrawal <- TRUE
           refreshbalancewithdrawal(newrefreshbalancewithdrawal)
         }
+        shinyalert("Success", "Withdrawal Request processed", type = "success",confirmButtonCol = "#54BA60")
         #shinyalert("Success", "Withdrawal Request processed", type = "success")
         #OTPGenerated <<- FALSE
         disable("withdrawalAccount")
         #AUTH_ID="MAZTI5MWUZZDY5NTCYYJ"
         #AUTH_TOKEN="YzAyM2ExNjdiOTA0YjA2NTdiNzhmOTkyOTBmZWIx"
-        account_masked <- paste(substring(basedatawithdrawal$NUMB,1,1),"X",substring(basedatawithdrawal$NUMB,3,3),"X",substring(basedatawithdrawal$NUMB,5,5),"X",sep="")
-        message <- paste("An amount of ", input$selected_withdrawal_currency, " ", input$accept_withdrawal_amount, " was debited from JKEBank account number ", account_masked, ". The updated balance is ", basedatawithdrawal$AMOUNT,sep="")
-        target_no <- gsub("\\+","",basedatawithdrawal$PHONE)
-        #url="https://api.plivo.com/v1/Account/MAZTI5MWUZZDY5NTCYYJ/Message/"
-        x <- POST(smsurl,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src=basemobilenumber,dst=target_no,text=message))
-        if(x[[2]] == 400){
-          shinyalert("Warning", "Withdrawal Request processed - But cannot send sms. Please register your mobile", type = "warning",confirmButtonCol = "#E74C3C")
-        }else {
-          shinyalert("Success", "Withdrawal Request processed", type = "success",confirmButtonCol = "#54BA60")
-        }
+        # account_masked <- paste(substring(basedatawithdrawal$NUMB,1,1),"X",substring(basedatawithdrawal$NUMB,3,3),"X",substring(basedatawithdrawal$NUMB,5,5),"X",sep="")
+        # message <- paste("An amount of ", input$selected_withdrawal_currency, " ", input$accept_withdrawal_amount, " was debited from JKEBank account number ", account_masked, ". The updated balance is ", basedatawithdrawal$AMOUNT,sep="")
+        # target_no <- gsub("\\+","",basedatawithdrawal$PHONE)
+        # #url="https://api.plivo.com/v1/Account/MAZTI5MWUZZDY5NTCYYJ/Message/"
+        # x <- POST(smsurl,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src=basemobilenumber,dst=target_no,text=message))
+        # if(x[[2]] == 400){
+        #   shinyalert("Warning", "Withdrawal Request processed - But cannot send sms. Please register your mobile", type = "warning",confirmButtonCol = "#E74C3C")
+        # }else {
+        #   shinyalert("Success", "Withdrawal Request processed", type = "success",confirmButtonCol = "#54BA60")
+        # }
         #SGAug2020
         return("withdrawal accepted")
       }

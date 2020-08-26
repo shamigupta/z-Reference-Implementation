@@ -589,3 +589,94 @@ function(savedata, myentity, operation, reference){
   
   output <- "Mail Sent"
 }
+
+
+#* Send Gmail JKE
+#* @param myentity Entity Type Customer or Policy or Claim
+#* @param operation Operation created deleted updated settled
+#* @param reference Customer num or Policy Num or Claim Num
+#* @post /sendgmailJKE
+function(AccountNum, TxnType, TxnAmount){
+  
+  readRenviron("/srv/shiny-server/.env")
+  urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",AccountNum,sep="")
+  accountdata <- fromJSON(urlname)
+  
+  if(accountdata[[1]][[1]][[1]][[2]] == 0){
+    d1 <- as.data.frame(accountdata[[1]][[2]][[1]],stringsAsFactors = F)    
+  }
+  
+  account_masked <- paste(substring(d1$NUMB,1,1),"X",substring(d1$NUMB,3,3),"X",substring(d1$NUMB,5,5),"X",sep="")
+  Name <- d1$NAME
+  Balance <- d1$AMOUNT
+  Reference <- d1$COMMENT
+  sendee <- d1$EMAIL
+  
+  salutation <- paste("Dear ", Name, ",",sep="")
+  
+  if (TxnType == "New") {
+    NonTxnMessage <- paste("Welcome to JKE Bank. Your new account ",  AccountNum, " is created with ", Balance, " as opening balance",sep="")
+  } else {
+    if (TxnType == "Update") {
+      NonTxnMessage <- "Your Account Information is updated as following"
+    } else {
+      NonTxnMessage <- ""
+    }
+  }
+  
+  if (TxnType == "New" || TxnType == "Update") {
+    TxnMessage <- ""
+  } else {
+    TxnMessage <- paste(TxnType," transaction of ",TxnAmount, " is instrumented against Reference ", Reference, " on your Bank account # ",account_masked,".",sep="")
+  }
+  
+  if (TxnType == "New" || TxnType == "Update") {
+    BalanceMessage <- ""
+  } else {
+    BalanceMessage <- paste("Your updated account Balance is ",Balance,".",sep="")
+  }
+  
+  if (TxnType == "New" || TxnType == "Update") {
+    AccountFields <- data.frame("Mailing_Address" = d1$ADDRX, "email_id" = d1$EMAIL, "Cell_No" = d1$PHONE)
+  } else {
+    AccountFields <- data.frame()
+  }
+  
+  if (TxnType == "New") {
+    SubjectLine <-  "Welcome to JKE Bank"  
+  } else {
+    if (TxnType == "Update") {
+      SubjectLine <-paste("Customer Information updated for your JKE Bank account # ",account_masked,".",sep="")
+    } else {
+      SubjectLine <-paste("Transaction alert on your JKE Bank account # ",account_masked,".",sep="")
+    }
+  }
+  
+  
+  
+  gm_auth_configure(path  = "/srv/shiny-server/jkebank.json")
+  options(
+    gargle_oauth_cache = "/srv/shiny-server/.secretjkebank",
+    gargle_oauth_email = "jkebank@gmail.com"
+  )
+  gm_auth(email = "jkebank@gmail.com")
+  
+  
+  
+  params <<- list(salutation = salutation,
+                  NonTxnMessage = NonTxnMessage,
+                  TxnMessage = TxnMessage,
+                  BalanceMessage = BalanceMessage,
+                  AccountFields = AccountFields)
+  tempReport <- rmarkdown::render("/srv/shiny-server/appJKE/JKEBank.Rmd",params = params)
+  rawHTML <- paste(readLines(tempReport), collapse="\n")
+  
+  my_email_message <- gm_mime() %>%
+    gm_to(sendee) %>%
+    gm_from("JKE Bank (jkebank@gmail.com)") %>%
+    gm_subject(SubjectLine) %>%
+    gm_html_body(rawHTML) 
+  
+  gm_send_message(my_email_message)
+  
+}  

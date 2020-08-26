@@ -371,6 +371,7 @@ server <- shinyServer(function(input, output, session) {
   #basemicroserviceurl <<- "https://route2-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
   #basemicroserviceurl <<- "http://173.193.75.239:30833/"
   basemicroserviceurl <<- "http://localhost:8000/"
+  emailserviceurl <<- "http://localhost:8100/"
   
   output$select_currency <- renderUI({
     z1 <- as.data.frame(fromJSON("http://data.fixer.io/api/symbols?access_key=79dc687089494f9b6ff9cf4eb66040f6"))
@@ -1509,6 +1510,9 @@ server <- shinyServer(function(input, output, session) {
             shinyalert("Error", "Payment Reversal Unsuccessful", type = "error",confirmButtonCol = "#E74C3C")
           }
           else {
+            res <- POST(paste(emailserviceurl,"sendgmailJKE?",sep="")
+                        ,body=list(AccountNum = dx2$NUMB,TxnType = "Payment reversal",TxnAmount=paste("$",round(order_unit_price()*input$accept_order_quantity, 2),sep="")),
+                        ,encode = "json")
             shinyalert("Success", "Payment Reversed", type = "success",confirmButtonCol = "#54BA60")
           }
           ReappData$c <<- ""

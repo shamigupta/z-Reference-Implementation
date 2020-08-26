@@ -1,0 +1,50 @@
+---
+title: "JKE Bank"
+output:
+  html_document:
+    df_print: paged
+params:
+header-includes:
+- \usepackage{caption}
+- \usepackage{float}
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\captionsetup[table]{labelformat=empty}
+
+![](JKEBankLogonew.png)
+
+&nbsp;
+
+**`r params$salutation`**
+
+`r params$NonTxnMessage`
+
+`r params$TxnMessage`
+
+`r params$BalanceMessage`
+
+```{r echo=FALSE, comment=NA}
+if(nrow(AccountFields) > 0) {
+  tabledata <- params$print_data
+  knitr::kable(AccountFields,format="markdown")
+}
+```
+
+
+```{r echo=FALSE, comment=NA}
+statutory_message <- "If you have not done this transaction, please contact our service desk immediately"
+
+```
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+**_`r statutory_message`_** 
+
+**Statement Print Date `r format(Sys.time(), '%d %B, %Y')`**
+
+
