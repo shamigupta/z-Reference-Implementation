@@ -807,7 +807,7 @@ server <- shinyServer(function(input, output, session) {
     
     if(nchar(str_pad(input$accept_account_ref,6,pad="0")) == 6) {
       readRenviron("../.env")
-      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       if(accountdata[[1]][[1]][[1]][[2]] != 0){
         disable("RetrieveAccount")
@@ -1459,7 +1459,7 @@ server <- shinyServer(function(input, output, session) {
         shinyalert("Order", ReappData$c, type = "info",confirmButtonCol = "#3F27B3")
         if (ReappData$c != "ORDER SUCCESSFULLY PLACED") {
           readRenviron("../.env")
-          urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
+          urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
           accountdata <- fromJSON(urlname)
           if(accountdata[[1]][[1]][[1]][[2]] != 0){
             shinyalert("Error", "Reversal Account Not found", type = "error",confirmButtonCol = "#E74C3C")
@@ -1470,7 +1470,7 @@ server <- shinyServer(function(input, output, session) {
           add_date <- paste(as.integer(format(Sys.time(), "%d")),as.integer(format(Sys.time(), "%m")),as.integer(format(Sys.time(), "%y")))
           acountbalance <- as.numeric(gsub("\\$","",dx2$AMOUNT)) + order_unit_price()*input$accept_order_quantity
           pc_json <- list(
-            DFHCOMMAREA = list(
+            JKEBCOMM = list(
               FILEA = list(
                 FILEREC = list(
                   STAT = "U",
@@ -1480,7 +1480,8 @@ server <- shinyServer(function(input, output, session) {
                   PHONE = dx2$PHONE,
                   DATEX = add_date,
                   AMOUNT = paste("$",acountbalance,sep=""),
-                  COMMENT = "Refund"
+                  COMMENT = "Refund",
+                  EMAIL = dx2$EMAIL
                 )
               ),
               COMM_AREA = list(
@@ -1492,13 +1493,14 @@ server <- shinyServer(function(input, output, session) {
                   PHONE = dx2$PHONE,
                   DATEX = dx2$DATEX,
                   AMOUNT = dx2$AMOUNT,
-                  COMMENT = dx2$COMMENT
+                  COMMENT = dx2$COMMENT,
+                  EMAIL = dx2$EMAIL
                 )
               )
             )
           )
           readRenviron("../.env")
-          res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",dx2$NUMB,sep="")
+          res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",dx2$NUMB,sep="")
                      , body = pc_json
                      , encode = "json")
           

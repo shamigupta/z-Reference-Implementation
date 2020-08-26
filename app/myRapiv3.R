@@ -285,7 +285,7 @@ function(x, y) {
   #Pay Bill
   if (!processing_error) {
     pc_json <- list(
-      DFHCOMMAREA = list(FILEA = list(FILEREC = list(
+      JKEBCOMM = list(FILEA = list(FILEREC = list(
         STAT = "U",NUMB = basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=add_date,AMOUNT=paste("$",newaccountbalance,sep=""),COMMENT="PnP Buy",EMAIL=basedata$EMAIL)),
         COMM_AREA = list(FILEREC = list(
           STAT=basedata$STAT,NUMB=basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=basedata$DATEX,AMOUNT=basedata$AMOUNT,COMMENT=basedata$COMMENT,EMAIL=basedata$EMAIL)
@@ -294,6 +294,7 @@ function(x, y) {
     res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",account_num,sep=""),body=pc_json,encode ="json")
     appData <- content(res)
     print("**********************")
+    print("Payment done")
     print("Payment done")
     print("**********************")
     
@@ -370,7 +371,7 @@ function(x, y) {
     newaccountbalance <- round(accountbalance + refund, 2)
     #Pay Bill
     pc_json <- list(
-      DFHCOMMAREA = list(FILEA = list(FILEREC = list(
+      JKEBCOMM = list(FILEA = list(FILEREC = list(
         STAT = "U",NUMB = basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=add_date,AMOUNT=paste("$",newaccountbalance,sep=""),COMMENT="Rev PnP",,EMAIL=basedata$EMAIL)),
         COMM_AREA = list(FILEREC = list(
           STAT=basedata$STAT,NUMB=basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=basedata$DATEX,AMOUNT=basedata$AMOUNT,COMMENT=basedata$COMMENT,EMAIL=basedata$EMAIL)
