@@ -267,7 +267,9 @@ function(x, y) {
       basedata <- as.data.frame(accountdata[[1]][[2]][[1]],stringsAsFactors = F)
     }
   }
-  
+  print("**********************")
+  print(basedata)
+  print("**********************")
   #Check Balance
   if (!processing_error) {
     add_date <- paste(as.integer(format(Sys.time(), "%d")),as.integer(format(Sys.time(), "%m")),as.integer(format(Sys.time(), "%y")))
@@ -291,6 +293,10 @@ function(x, y) {
       ))  
     res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",account_num,sep=""),body=pc_json,encode ="json")
     appData <- content(res)
+    print("**********************")
+    print("Payment done")
+    print("**********************")
+    
     if (appData[[1]][[1]][[1]][[2]] != 0) {
       message <- "Payment Unsuccessful"
       processing_error <- TRUE
@@ -347,6 +353,10 @@ function(x, y) {
   if (!processing_error && (refund > 0) ) {
     urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",account_num,sep="")
     accountdata <- fromJSON(urlname)
+    print("**********************")
+    print("Validation for refund")
+    print("**********************")
+    
     if(accountdata[[1]][[1]][[1]][[2]] != 0){
       message <- "Account Not found for reversal"
       processing_error <- TRUE
@@ -369,6 +379,10 @@ function(x, y) {
     )  
     res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",account_num,sep=""),body=pc_json,encode="json")
     appData <- content(res)
+    print("**********************")
+    print("Process Refund")
+    print("**********************")
+    
     if (appData[[1]][[1]][[1]][[2]] != 0) {
       message <- "Payment Reversal Unsuccessful"
       processing_error <- TRUE
