@@ -257,7 +257,7 @@ function(x, y) {
   readRenviron("/srv/shiny-server/.env")
   #Validate Account
   if (!processing_error) {
-    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",account_num,sep="")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",account_num,sep="")
     accountdata <- fromJSON(urlname)
     if(accountdata[[1]][[1]][[1]][[2]] != 0){
       message <- "Account Not Found"
@@ -284,12 +284,12 @@ function(x, y) {
   if (!processing_error) {
     pc_json <- list(
       DFHCOMMAREA = list(FILEA = list(FILEREC = list(
-        STAT = "U",NUMB = basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=add_date,AMOUNT=paste("$",newaccountbalance,sep=""),COMMENT="PnP Buy")),
+        STAT = "U",NUMB = basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=add_date,AMOUNT=paste("$",newaccountbalance,sep=""),COMMENT="PnP Buy",EMAIL=basedata$EMAIL)),
         COMM_AREA = list(FILEREC = list(
-          STAT=basedata$STAT,NUMB=basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=basedata$DATEX,AMOUNT=basedata$AMOUNT,COMMENT=basedata$COMMENT)
+          STAT=basedata$STAT,NUMB=basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=basedata$DATEX,AMOUNT=basedata$AMOUNT,COMMENT=basedata$COMMENT,EMAIL=basedata$EMAIL)
         )
       ))  
-    res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",account_num,sep=""),body=pc_json,encode ="json")
+    res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",account_num,sep=""),body=pc_json,encode ="json")
     appData <- content(res)
     if (appData[[1]][[1]][[1]][[2]] != 0) {
       message <- "Payment Unsuccessful"
@@ -345,7 +345,7 @@ function(x, y) {
   }
   #Check Account for Refund and process reversal
   if (!processing_error && (refund > 0) ) {
-    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",account_num,sep="")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",account_num,sep="")
     accountdata <- fromJSON(urlname)
     if(accountdata[[1]][[1]][[1]][[2]] != 0){
       message <- "Account Not found for reversal"
@@ -361,13 +361,13 @@ function(x, y) {
     #Pay Bill
     pc_json <- list(
       DFHCOMMAREA = list(FILEA = list(FILEREC = list(
-        STAT = "U",NUMB = basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=add_date,AMOUNT=paste("$",newaccountbalance,sep=""),COMMENT="Rev PnP")),
+        STAT = "U",NUMB = basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=add_date,AMOUNT=paste("$",newaccountbalance,sep=""),COMMENT="Rev PnP",,EMAIL=basedata$EMAIL)),
         COMM_AREA = list(FILEREC = list(
-          STAT=basedata$STAT,NUMB=basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=basedata$DATEX,AMOUNT=basedata$AMOUNT,COMMENT=basedata$COMMENT)
+          STAT=basedata$STAT,NUMB=basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=basedata$DATEX,AMOUNT=basedata$AMOUNT,COMMENT=basedata$COMMENT,EMAIL=basedata$EMAIL)
         )
       )
     )  
-    res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",account_num,sep=""),body=pc_json,encode="json")
+    res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",account_num,sep=""),body=pc_json,encode="json")
     appData <- content(res)
     if (appData[[1]][[1]][[1]][[2]] != 0) {
       message <- "Payment Reversal Unsuccessful"

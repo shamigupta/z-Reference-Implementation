@@ -183,7 +183,6 @@ ui <- dashboardPage(
                       column(3,uiOutput("select_update_Cell"))
                     ),
                     fluidRow(
-                      column(3,uiOutput("select_update_email_id")),
                       column(3,textInput("accept_update_remarks", h4(strong("Remarks"), style="font-style: bold; color: darkgreen")))
                     ),
                     fluidRow(
@@ -296,8 +295,7 @@ ui <- dashboardPage(
               ),
               fluidRow(
                 column(3,textInput("accept_add_address", h4(strong("Mailing Address"), style="font-style: bold; color: #935116"))),
-                column(3,numericInput("accept_add_Cell", h4(strong("Cell No (Prefix Country Code)"), style="font-style: bold; color: #935116"),value = 0)),
-                column(3,textInput("accept_email_id", h4(strong("email id"), style="font-style: bold; color: #935116")))
+                column(3,numericInput("accept_add_Cell", h4(strong("Cell No (Prefix Country Code)"), style="font-style: bold; color: #935116"),value = 0))
               ),
               fluidRow(
                 column(2,numericInput("accept_add_balance", h4(strong("Account Balance (USD)"), style="font-style: bold; color: #935116"),value = 0.00)),
@@ -382,9 +380,6 @@ server <- shinyServer(function(input, output, session) {
   OTPGenerated <- FALSE
   OTPValidated <- FALSE
   show_welcome <- reactiveVal(TRUE)
-  #basemicroserviceurl <- "https://dvm-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
-  basemicroserviceurl <<- "http://localhost:8000/"
-  
 
   output$mortgage_message <- renderText({
     if (!is.numeric(input$accept_mortgage_amt)) {
@@ -522,7 +517,7 @@ server <- shinyServer(function(input, output, session) {
     
     if(nchar(str_pad(input$accept_account_ref,6,pad="0")) == 6) {
       readRenviron("../.env")
-      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       if(accountdata[[1]][[1]][[1]][[2]] != 0){
         disable("RetrieveAccount")
@@ -552,7 +547,7 @@ server <- shinyServer(function(input, output, session) {
     if (input$RetrieveAccount > retrieveacountpressedcount) {
       retrieveacountpressedcount <<- input$RetrieveAccount
       readRenviron("../.env")
-      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       
       if(nchar(str_pad(input$accept_account_ref,6,pad="0")) != 6) {
@@ -574,8 +569,8 @@ server <- shinyServer(function(input, output, session) {
         d2[i,]$CustomerData <<- d1[1,i]
       }
       
-      d2 <<- d2[c(6,9,2,4,3,5,7,8),]
-      d2$Parameter <<- c("Account No", "Name", "Address", "Cell No", "Balance", "Last Update","Email","Remarks")
+      d2 <<- d2[c(6,8,2,4,3,5,7),]
+      d2$Parameter <<- c("Account No", "Name", "Address", "Cell No", "Balance", "Last Update","Remarks")
 
     }
 
@@ -616,10 +611,6 @@ server <- shinyServer(function(input, output, session) {
       return("Address can be max 20 chars long")
     }
     
-    if(nchar(input$accept_email_id) > 30){
-      return("email id can be max 30 chars long")
-    }
-    
     if(!is.numeric(input$accept_add_Cell)){
       return("Cell Number must be numeric")
     }
@@ -642,7 +633,7 @@ server <- shinyServer(function(input, output, session) {
     if (input$AddAccount > addaccountcounter) {
       addaccountcounter <<- input$AddAccount
       pc_json <- list(
-        JKEBCOMM = list(
+        DFHCOMMAREA = list(
           LINK = list(
             LINK_COMM = list(
               KEYNUM = as.integer(input$accept_add_account_ref)
@@ -656,15 +647,14 @@ server <- shinyServer(function(input, output, session) {
               PHONE = paste("+",input$accept_add_Cell,sep=""),
               DATEX = add_date,
               AMOUNT = paste("$",input$accept_add_balance,sep=""),
-              COMMENT = input$accept_add_remarks,
-              EMAIL = input$accept_email_id
+              COMMENT = input$accept_add_remarks
             )
           )
         )
       )
       
       readRenviron("../.env")
-      res <- POST(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/accno",sep="")
+      res <- POST(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno",sep="")
                 , body = pc_json
                 , encode = "json")
     
@@ -676,9 +666,8 @@ server <- shinyServer(function(input, output, session) {
       }
     
       if (appData[[1]][[1]][[1]][[2]] == 0) {
-        shinyalert("Success", "Account succesfully created.", type = "success",confirmButtonCol = "#54BA60")
+        shinyalert("Success", "Account succesfully created. Please register your mobile", type = "success",confirmButtonCol = "#54BA60")
         return("Account Created")
-#SGAug2020        
       }
       
     }
@@ -702,13 +691,7 @@ server <- shinyServer(function(input, output, session) {
     current_address <- basedata$ADDRX
     textInput("selected_update_address", h4(strong("Mailing Address"), style="font-style: bold; color: darkgreen"),value = current_address)
   })
-
-  output$select_update_email_id <- renderUI({
-    input$RetrieveAccount4update
-    current_email_id <- basedata$EMAIL
-    textInput("selected_update_email_id", h4(strong("email id"), style="font-style: bold; color: darkgreen"),value = current_email_id)
-  })
-    
+  
   output$select_update_Cell <- renderUI({
     input$RetrieveAccount4update
     current_cell_no <- as.numeric(gsub("\\+","",basedata$PHONE))
@@ -732,7 +715,7 @@ server <- shinyServer(function(input, output, session) {
       } 
       RetrieveAccount4updatepressedcount <<- input$RetrieveAccount4update
       readRenviron("../.env")
-      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       
 
@@ -747,12 +730,9 @@ server <- shinyServer(function(input, output, session) {
   
   output$update_message <- renderText({
     
+    
     if(nchar(input$selected_update_address) > 20){
       return("Address can be max 20 chars long")
-    }
-    
-    if(nchar(input$selected_update_email_id) > 30){
-      return("email id can be max 30 chars long")
     }
     
     if(!is.numeric(input$selected_update_Cell)){
@@ -768,7 +748,7 @@ server <- shinyServer(function(input, output, session) {
     if (input$UpdateAccount > updateaccountpressed) {
       updateaccountpressed <<- input$UpdateAccount
       pc_json <- list(
-        JKEBCOMM = list(
+        DFHCOMMAREA = list(
           FILEA = list(
             FILEREC = list(
               STAT = "U",
@@ -778,8 +758,7 @@ server <- shinyServer(function(input, output, session) {
               PHONE = paste("+",input$selected_update_Cell,sep=""),
               DATEX = add_date,
               AMOUNT = basedata$AMOUNT,
-              COMMENT = input$accept_update_remarks,
-              EMAIL = input$selected_update_email_id
+              COMMENT = input$accept_update_remarks
             )
           ),
           COMM_AREA = list(
@@ -791,28 +770,27 @@ server <- shinyServer(function(input, output, session) {
               PHONE = basedata$PHONE,
               DATEX = basedata$DATEX,
               AMOUNT = basedata$AMOUNT,
-              COMMENT = basedata$COMMENT,
-              EMAIL = basedata$EMAIL
+              COMMENT = basedata$COMMENT
             )
           )
         )
       )  
       
       readRenviron("../.env")
-      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
                  , body = pc_json
                  , encode = "json")
       
       appData <- content(res)
       
-      if (appData$JKEBCOMM$LINK$LINK_COMM$RCODE != 0) {
+      if (appData[[1]][[1]][[1]][[2]] != 0) {
         return("Update Unsuccessful")
       }
       
-      if (appData$JKEBCOMM$LINK$LINK_COMM$RCODE == 0) {
+      if (appData[[1]][[1]][[1]][[2]] == 0) {
         #RetrieveAccount4updatepressedcount <<- input$RetrieveAccount4update
         readRenviron("../.env")
-        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
+        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_update_account_ref,6,pad="0"),sep="")
         accountdata <- fromJSON(urlname)
         
         
@@ -834,7 +812,6 @@ server <- shinyServer(function(input, output, session) {
         else {
           shinyalert("Success", "Account successfully updated", type = "success",confirmButtonCol = "#54BA60")
         }
-        #SGAug2020
         return("Account Updated")
       }
       
@@ -876,7 +853,7 @@ server <- shinyServer(function(input, output, session) {
       } 
       RetrieveAccount4depositpressedcount <<- input$RetrieveAccount4deposit
       readRenviron("../.env")
-      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       
       
@@ -932,7 +909,7 @@ server <- shinyServer(function(input, output, session) {
       depositpressed <<- input$DepositAccount
       
       pc_json <- list(
-        JKEBCOMM = list(
+        DFHCOMMAREA = list(
           FILEA = list(
             FILEREC = list(
               STAT = "U",
@@ -942,8 +919,7 @@ server <- shinyServer(function(input, output, session) {
               PHONE = basedatadeposit$PHONE,
               DATEX = add_date,
               AMOUNT = paste("$",newaccountbalance,sep=""),
-              COMMENT = input$accept_deposit_remarks,
-              EMAIL = basedatadeposit$EMAIL
+              COMMENT = input$accept_deposit_remarks
             )
           ),
           COMM_AREA = list(
@@ -955,14 +931,13 @@ server <- shinyServer(function(input, output, session) {
               PHONE = basedatadeposit$PHONE,
               DATEX = basedatadeposit$DATEX,
               AMOUNT = basedatadeposit$AMOUNT,
-              COMMENT = basedatadeposit$COMMENT,
-              EMAIL = basedatadeposit$EMAIL
+              COMMENT = basedatadeposit$COMMENT
             )
           )
         )
       )  
       readRenviron("../.env")
-      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
                  , body = pc_json
                  , encode = "json")
       
@@ -974,7 +949,7 @@ server <- shinyServer(function(input, output, session) {
       
       if (appData[[1]][[1]][[1]][[2]] == 0) {
         #RetrieveAccount4depositpressedcount <<- input$RetrieveAccount4deposit
-        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
+        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_deposit_account_ref,6,pad="0"),sep="")
         accountdata <- fromJSON(urlname)
         
         
@@ -1004,7 +979,6 @@ server <- shinyServer(function(input, output, session) {
         }else {
           shinyalert("Success", "Deposit Request processed", type = "success",confirmButtonCol = "#54BA60")
         }
-        #SGAug2020
         return("Deposit accepted")
       }
       
@@ -1048,7 +1022,7 @@ server <- shinyServer(function(input, output, session) {
       } 
       RetrieveAccount4withdrawalpressedcount <<- input$RetrieveAccount4withdrawal
       readRenviron("../.env")
-      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
+      urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
       accountdata <- fromJSON(urlname)
       
       
@@ -1102,29 +1076,22 @@ server <- shinyServer(function(input, output, session) {
       OTPIN <<- str_pad(sample(1:9999,1),4,pad="0")
       #AUTH_ID="MAZTI5MWUZZDY5NTCYYJ"
       #AUTH_TOKEN="YzAyM2ExNjdiOTA0YjA2NTdiNzhmOTkyOTBmZWIx"
-      #account_masked <- paste(substring(basedatawithdrawal$NUMB,1,1),"X",substring(basedatawithdrawal$NUMB,3,3),"X",substring(basedatawithdrawal$NUMB,5,5),"X",sep="")
-      #message <- paste("Your 4 digit OTP against JKEBANK account ",account_masked, " is ",OTPIN,sep="")
+      account_masked <- paste(substring(basedatawithdrawal$NUMB,1,1),"X",substring(basedatawithdrawal$NUMB,3,3),"X",substring(basedatawithdrawal$NUMB,5,5),"X",sep="")
+      message <- paste("Your 4 digit OTP against JKEBANK account ",account_masked, " is ",OTPIN,sep="")
       target_no <- gsub("\\+","",basedatawithdrawal$PHONE)
       #url="https://api.plivo.com/v1/Account/MAZTI5MWUZZDY5NTCYYJ/Message/"
       #x <- POST(url,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src="919830201760",dst="916290938787",text=message))
-      #x <- POST(smsurl,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src=basemobilenumber,dst=target_no,text=message))
-      #if(x[[2]] == 400){
-      #  shinyalert("Error", "Please register Mobile Number", type = "error",confirmButtonCol = "#E74C3C")
-      #  disable("withdrawalAccount")
-      #  return("Mobile setup needed")
-      #}
-      #else {
-      #  enable("withdrawalAccount")
-      #}
-      newOTP_TS <- fromJSON("http://worldtimeapi.org/api/timezone/Etc/UTC")$unixtime
-      updatesql <- paste ("UPDATE IDZPOT.OTP_PROCESS SET OTP = ", OTPIN, ", OTP_TS = ", newOTP_TS, " WHERE MOBILE_NO = ",target_no,sep="")
-      res <- POST(paste(basemicroserviceurl,"getDB2zEUSDocker?",sep="")
-                  ,body=list(myquerry = updatesql),
-                  ,encode = "json")
-      appData <- content(res)
+      x <- POST(smsurl,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src=basemobilenumber,dst=target_no,text=message))
+      if(x[[2]] == 400){
+        shinyalert("Error", "Please register Mobile Number", type = "error",confirmButtonCol = "#E74C3C")
+        disable("withdrawalAccount")
+        return("Mobile setup needed")
+      }
+      else {
+        enable("withdrawalAccount")
+      }
       OTPGenerated <<- TRUE
       OTPValidated <<- FALSE
-      shinyalert("Info", "OTP Pushed to JKE Bank OTP Tracker App", type = "info",confirmButtonCol = "#3F27B3")
     }
     
     add_date <- paste(as.integer(format(Sys.time(), "%d")),as.integer(format(Sys.time(), "%m")),as.integer(format(Sys.time(), "%y")))
@@ -1142,7 +1109,7 @@ server <- shinyServer(function(input, output, session) {
         return(" ")
       }
       pc_json <- list(
-        JKEBCOMM = list(
+        DFHCOMMAREA = list(
           FILEA = list(
             FILEREC = list(
               STAT = "U",
@@ -1152,8 +1119,7 @@ server <- shinyServer(function(input, output, session) {
               PHONE = basedatawithdrawal$PHONE,
               DATEX = add_date,
               AMOUNT = paste("$",newaccountbalance,sep=""),
-              COMMENT = input$accept_withdrawal_remarks,
-              EMAIL = basedatawithdrawal$EMAIL
+              COMMENT = input$accept_withdrawal_remarks
             )
           ),
           COMM_AREA = list(
@@ -1165,14 +1131,13 @@ server <- shinyServer(function(input, output, session) {
               PHONE = basedatawithdrawal$PHONE,
               DATEX = basedatawithdrawal$DATEX,
               AMOUNT = basedatawithdrawal$AMOUNT,
-              COMMENT = basedatawithdrawal$COMMENT,
-              EMAIL = basedatawithdrawal$EMAIL
+              COMMENT = basedatawithdrawal$COMMENT
             )
           )
         )
       )  
       readRenviron("../.env")
-      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
                  , body = pc_json
                  , encode = "json")
       
@@ -1185,7 +1150,7 @@ server <- shinyServer(function(input, output, session) {
       if (appData[[1]][[1]][[1]][[2]] == 0) {
         #RetrieveAccount4withdrawalpressedcount <<- input$RetrieveAccount4withdrawal
         readRenviron("../.env")
-        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
+        urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebanking/accno/",str_pad(input$accept_withdrawal_account_ref,6,pad="0"),sep="")
         accountdata <- fromJSON(urlname)
         
         
@@ -1216,7 +1181,7 @@ server <- shinyServer(function(input, output, session) {
         }else {
           shinyalert("Success", "Withdrawal Request processed", type = "success",confirmButtonCol = "#54BA60")
         }
-        #SGAug2020
+        
         return("withdrawal accepted")
       }
       
