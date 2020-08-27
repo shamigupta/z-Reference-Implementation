@@ -678,5 +678,5 @@ function(AccountNum, TxnType, TxnAmount){
     gm_html_body(rawHTML) 
   
   gm_send_message(my_email_message)
-  
+  output <- "Mail Sent"
 }  

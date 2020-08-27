@@ -395,3 +395,119 @@ function(x, y) {
   }  
   z <- list(order_input,refund_amount,message)
 }
+
+#* Create GENApps Claim
+#* @param CustomerNum  
+#* @param PolicyNum
+#* @param ClaimDate  
+#* @param ClaimAmount
+#* @param ClaimCause
+#* @post /zGenAppsCreateClaim
+function(CustomerNum, PolicyNum, ClaimDate, ClaimAmount, ClaimCause) {
+  
+  emailserviceurl <- "http://localhost:8100/" 
+  
+  pc_json <- list(
+    LGCMAREA = list(
+      CA_CUSTOMER_NUM = CustomerNum,
+      CA_POLICY_REQUEST = list(
+        CA_POLICY_NUM = PolicyNum,
+        CA_CLAIM = list(
+          CA_C_DATE = ClaimDate,
+          CA_C_VALUE = ClaimAmount,
+          CA_C_CAUSE = ClaimCause,
+          CA_C_PAID = 0,
+          CA_C_OBSERVATIONS = ""
+        )
+      ) 
+    )
+  )  
+  
+  readRenviron("/srv/shiny-server/.env")
+  res <- POST(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Claim/AddClaim",sep="")
+              , body = pc_json
+              , encode = "json")
+  
+  NewCLaimData <- content(res)
+  if (NewCLaimData$LGCMAREA$CA_RETURN_CODE == 0) {
+    ClaimNumber <- NewCLaimData$LGCMAREA$CA_POLICY_REQUEST$CA_CLAIM$CA_C_NUM
+    myentity = "Claim"
+    operation = "Created"
+    reference = ClaimNumber
+    res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                ,body=list(myentity = myentity,operation = operation,reference=reference),
+                ,encode = "json")
+  } else {
+    ClaimNumber <- 0
+  }
+  
+}
+
+
+#* Settle GENApps Claim
+#* @param AccountNumber  
+#* @param ClaimNum
+#* @param SetllementAmount  
+#* @param Observations
+#* @post /zGenAppsSettleClaim
+function(AccountNumber, ClaimNum, SetllementAmount, Observations) {
+  
+  emailserviceurl <- "http://localhost:8100/" 
+  
+  pc_json <- list(
+    LGCMAREA = list(
+      CA_POLICY_REQUEST = list(
+        CA_CLAIM = list(
+          CA_C_PAID = SetllementAmount,
+          CA_C_OBSERVATIONS = Observations
+        )
+      ) 
+    )
+  )  
+  
+  readRenviron("/srv/shiny-server/.env")
+  res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Claim/Enquire/",ClaimNum,sep="")
+             , body = pc_json
+             , encode = "json")
+  
+  UpdateCLaimData <- content(res)
+  if (UpdateCLaimData$LGCMAREA$CA_RETURN_CODE == 0) {
+    myentity = "Claim"
+    operation = "Settled"
+    reference = ClaimNum
+    res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
+                ,body=list(myentity = myentity,operation = operation,reference=reference),
+                ,encode = "json")
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",AccountNumber,sep="")
+    accountdata <- fromJSON(urlname)
+    if(accountdata[[1]][[1]][[1]][[2]] != 0){
+      result <- "Account Not Found"
+    } else {
+      basedata <- as.data.frame(accountdata[[1]][[2]][[1]],stringsAsFactors = F)
+      add_date <- paste(as.integer(format(Sys.time(), "%d")),as.integer(format(Sys.time(), "%m")),as.integer(format(Sys.time(), "%y")))
+      accountbalance <- as.numeric(gsub("\\$","",basedata$AMOUNT))
+      newaccountbalance <- round(accountbalance + SetllementAmount, 2)
+      pc_json <- list(
+        JKEBCOMM = list(FILEA = list(FILEREC = list(
+          STAT = "U",NUMB = basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=add_date,AMOUNT=paste("$",newaccountbalance,sep=""),COMMENT="GENApps",EMAIL=basedata$EMAIL)),
+          COMM_AREA = list(FILEREC = list(
+            STAT=basedata$STAT,NUMB=basedata$NUMB,NAME=basedata$NAME,ADDRX=basedata$ADDRX,PHONE=basedata$PHONE,DATEX=basedata$DATEX,AMOUNT=basedata$AMOUNT,COMMENT=basedata$COMMENT,EMAIL=basedata$EMAIL)
+          )
+        ))  
+      res <- PUT(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",AccountNumber,sep=""),body=pc_json,encode ="json")
+      appData <- content(res)
+      if (appData[[1]][[1]][[1]][[2]] != 0) {
+        result  <- "Payout Unsuccessful"
+      } else {
+        res <- POST(paste(emailserviceurl,"sendgmailJKE?",sep="")
+                    ,body=list(AccountNum = AccountNumber,TxnType = "Credit",TxnAmount=paste("$",SetllementAmount,sep=""))
+                    ,encode = "json")
+        result <- "settlement successful"
+      }
+    }
+    
+  } else {
+    result <- "settlement failed"
+  }
+  
+}
