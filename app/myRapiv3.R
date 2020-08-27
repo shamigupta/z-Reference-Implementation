@@ -422,24 +422,32 @@ function(CustomerNum, PolicyNum, ClaimDate, ClaimAmount, ClaimCause) {
       ) 
     )
   )  
+  print("**********1*************")
   readRenviron("/srv/shiny-server/.env")
   res <- POST(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Claim/AddClaim",sep="")
               , body = pc_json
               , encode = "json")
   
   NewCLaimData <- content(res)
+  print("**********2*************")
   if (NewCLaimData$LGCMAREA$CA_RETURN_CODE == 0) {
     ClaimNumber <- NewCLaimData$LGCMAREA$CA_POLICY_REQUEST$CA_CLAIM$CA_C_NUM
     myentity = "Claim"
     operation = "created"
     reference = ClaimNumber
+    print("**********3*************")
     res <- POST(paste(emailserviceurl,"sendgmailGENApps3?",sep="")
                 ,body=list(myentity = myentity,operation = operation,reference=reference,CustomerNum=CustomerNum),
                 ,encode = "json")
+    print("**********4*************")
+    
   } else {
+    print("**********5*************")
     ClaimNumber <- 0
+    print("**********6*************")
   }
-  
+  print("**********7*************")
+  GeneratedClaim <- ClaimNumber
 }
 
 
@@ -508,4 +516,5 @@ function(AccountNumber, ClaimNum, SetllementAmount, Observations,CustomerNum) {
   } else {
     result <- "settlement failed"
   }
+  ReturnMessage <- result
 }
