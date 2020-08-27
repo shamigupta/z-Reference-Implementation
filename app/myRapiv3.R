@@ -509,5 +509,4 @@ function(AccountNumber, ClaimNum, SetllementAmount, Observations) {
   } else {
     result <- "settlement failed"
   }
-  
 }
