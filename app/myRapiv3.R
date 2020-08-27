@@ -422,29 +422,21 @@ function(CustomerNum, PolicyNum, ClaimDate, ClaimAmount, ClaimCause) {
       ) 
     )
   )  
-  
-  print("***********1********")
-  
   readRenviron("/srv/shiny-server/.env")
   res <- POST(paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Claim/AddClaim",sep="")
               , body = pc_json
               , encode = "json")
   
   NewCLaimData <- content(res)
-  print("***********2********")
-  
   if (NewCLaimData$LGCMAREA$CA_RETURN_CODE == 0) {
     ClaimNumber <- NewCLaimData$LGCMAREA$CA_POLICY_REQUEST$CA_CLAIM$CA_C_NUM
     myentity = "Claim"
     operation = "created"
     reference = ClaimNumber
-    print("***********3********")
-    res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
-                ,body=list(myentity = myentity,operation = operation,reference=reference),
+    res <- POST(paste(emailserviceurl,"sendgmailGENApps3?",sep="")
+                ,body=list(myentity = myentity,operation = operation,reference=reference,CustomerNum=CustomerNum),
                 ,encode = "json")
-    print("***********4********")
   } else {
-    print("***********5********")
     ClaimNumber <- 0
   }
   
@@ -457,7 +449,7 @@ function(CustomerNum, PolicyNum, ClaimDate, ClaimAmount, ClaimCause) {
 #* @param SetllementAmount  
 #* @param Observations
 #* @post /zGenAppsSettleClaim
-function(AccountNumber, ClaimNum, SetllementAmount, Observations) {
+function(AccountNumber, ClaimNum, SetllementAmount, Observations,CustomerNum) {
   
   emailserviceurl <- "http://localhost:8100/" 
   
@@ -482,8 +474,8 @@ function(AccountNumber, ClaimNum, SetllementAmount, Observations) {
     myentity = "Claim"
     operation = "Settled"
     reference = ClaimNum
-    res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
-                ,body=list(myentity = myentity,operation = operation,reference=reference),
+    res <- POST(paste(emailserviceurl,"sendgmailGENApps3?",sep="")
+                ,body=list(myentity = myentity,operation = operation,reference=reference,CustomerNum=CustomerNum),
                 ,encode = "json")
     urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/jkebankaccount/account/",AccountNumber,sep="")
     accountdata <- fromJSON(urlname)

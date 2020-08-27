@@ -225,8 +225,6 @@ function(myentity, operation, reference){
   
   readRenviron("/srv/shiny-server/.env")
   basemicroserviceurl <<- "http://localhost:8000/"
-  print("***********1********")
-  
   if (operation == "deleted") {
     inputarray <- unlist(strsplit(reference,"-"))
     reference <- inputarray[1]
@@ -238,8 +236,6 @@ function(myentity, operation, reference){
                         ifelse(myentity=="Policy",paste("select firstname, lastname, emailaddress from vcustomer A, vpolicy B where A.CUSTOMERNUMBER = B.CUSTOMERNUMBER and B.POLICYNUMBER = ",reference,sep=""),
                                paste("select firstname, lastname, emailaddress from vcustomer where CUSTOMERNUMBER = ",reference,sep="")))
   }
-  print("***********2********")
-  
   res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
               ,body=list(myquerry = email_qry),
               ,encode = "json")
@@ -252,8 +248,6 @@ function(myentity, operation, reference){
       Last_Name <- trimws(appPol[[1]][[1]]$LASTNAME)
     }
   }
-  print("***********3********")
-  
   if (myentity == "Customer") {
     urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Customer/customer/",reference,sep="")
     accountdata <- fromJSON(urlname)
@@ -273,8 +267,6 @@ function(myentity, operation, reference){
     }
     print_policy_type = ""
   }
-  print("***********4********")
-  
   if (myentity == "Policy") {
     data_qry <- paste("select CUSTOMERNUMBER, POLICYNUMBER, POLICYTYPE from vpolicy where POLICYNUMBER = ",reference,sep="")
     res <- POST(paste(basemicroserviceurl,"getDVMzEUSDocker?",sep="")
@@ -329,8 +321,6 @@ function(myentity, operation, reference){
       }
     }
   }  
-  print("***********5********")
-  
   if (myentity == "Claim") {
     urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Claim/Enquire/",reference,sep="")
     claim_data <- fromJSON(urlname)
@@ -350,9 +340,6 @@ function(myentity, operation, reference){
     }
     print_policy_type = ""
   }
-  
-  print("***********6********")
-  
   gm_auth_configure(path  = "/srv/shiny-server/genapps.json")
   options(
     gargle_oauth_cache = "/srv/shiny-server/.secretgenapps",
@@ -382,8 +369,6 @@ function(myentity, operation, reference){
     table_included <- FALSE
     d1 <- data.frame()
   }
-  print("***********7********")
-  
   params <- list(salutation = salutation,
                   welcome_message = welcome_message,
                   header_message = header_message,
@@ -393,8 +378,6 @@ function(myentity, operation, reference){
   tempReport <- rmarkdown::render("/srv/shiny-server/appGENApps/GenApps.Rmd",params = params)
   rawHTML <- paste(readLines(tempReport), collapse="\n")
   
-  print("***********8********")
-  
   my_email_message <- gm_mime() %>%
     gm_to(To_email_id) %>%
     gm_from("General Insurance Apps (gen.apps.insurance@gmail.com)") %>%
@@ -402,8 +385,6 @@ function(myentity, operation, reference){
     gm_html_body(rawHTML) 
   
   gm_send_message(my_email_message)
-  print("***********9********")
-  
   output <- "Mail Sent"
 }
 
@@ -601,6 +582,90 @@ function(savedata, myentity, operation, reference){
   output <- "Mail Sent"
 }
 
+#* Send Gmail3
+#* @param myentity Entity Type Customer or Policy or Claim
+#* @param operation Operation created deleted updated settled
+#* @param reference Customer num or Policy Num or Claim Num
+#* @post /sendgmailGENApps3
+function(myentity, operation, reference,CustomerNum){
+  
+  readRenviron("/srv/shiny-server/.env")
+  basemicroserviceurl <<- "http://localhost:8000/"
+  urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Customer/customer/",CustomerNum,sep="")
+  accountdata <- fromJSON(urlname)
+  if (accountdata$LGCMAREA$CA_RETURN_CODE == 0) {
+    d1 <- as.data.frame(accountdata$LGCMAREA$CA_CUSTOMER_REQUEST,stringsAsFactors=FALSE)
+    names(d1) <- gsub("CA_PHONE_HOME","CA_BANK_ACT",names(d1))
+    To_email_id <-  d1$CA_EMAIL_ADDRESS
+    First_Name <- d1$CA_FIRST_NAME
+    Last_Name <- d1$CA_LAST_NAME
+  }  
+  if (myentity == "Claim") {
+    urlname <- paste(Sys.getenv("MainframeIP"),":",Sys.getenv("zConnectPort"),"/CB12Claim/Enquire/",reference,sep="")
+    claim_data <- fromJSON(urlname)
+    if ( claim_data$LGCMAREA$CA_RETURN_CODE == 0) {
+      claimdata <- as.data.frame(claim_data$LGCMAREA$CA_POLICY_REQUEST$CA_CLAIM,stringsAsFactors=FALSE)
+      claimdata$CA_POLICY_NUM <- claim_data$LGCMAREA$CA_POLICY_REQUEST$CA_POLICY_NUM
+      claimdata$CA_CLAIM_NUM <- reference
+      d1 <- claimdata[,c(6,7, 1:5)]
+    }
+    if (d1$CA_C_OBSERVATIONS != "") {
+      y <- gsub("\\|","@",d1$CA_C_OBSERVATIONS,"@@@")
+      z <- unlist(str_split(y,"@@@"))
+      d1$CA_C_OBSERVATIONS <- z[1]
+      d1$CA_C_EVIDENCE <- z[2]
+    } else {
+      d1$CA_C_EVIDENCE <- ""
+    }
+    print_policy_type = ""
+  }
+  gm_auth_configure(path  = "/srv/shiny-server/genapps.json")
+  options(
+    gargle_oauth_cache = "/srv/shiny-server/.secretgenapps",
+    gargle_oauth_email = "gen.apps.insurance@gmail.com"
+  )
+  gm_auth(email = "gen.apps.insurance@gmail.com")
+  
+  salutation <- paste("Dear ",First_Name," ", Last_Name,",",sep="")
+  
+  if(myentity == "Customer" && operation == "created") {
+    welcome_message <- "General Insurance App welcomes you as a new customer."
+    title_message <- "Welcome to GenApps Insurance"
+  } else {
+    welcome_message <- ""
+    title_message <- paste(print_policy_type,myentity,reference,"is",operation,sep=" ")
+  }
+  
+  header_message <- paste("Your",print_policy_type,myentity,"record #", reference,"is",operation,sep=" ")
+  
+  
+  if (operation != "deleted") {
+    d1[1,] <- trimws(d1[1,],"both")
+    d1 <- as.data.frame(t(d1))
+    names(d1) <- "Record"
+    table_included <- TRUE
+  } else {
+    table_included <- FALSE
+    d1 <- data.frame()
+  }
+  params <- list(salutation = salutation,
+                 welcome_message = welcome_message,
+                 header_message = header_message,
+                 table_included = table_included,
+                 print_data = d1)
+  
+  tempReport <- rmarkdown::render("/srv/shiny-server/appGENApps/GenApps.Rmd",params = params)
+  rawHTML <- paste(readLines(tempReport), collapse="\n")
+  
+  my_email_message <- gm_mime() %>%
+    gm_to(To_email_id) %>%
+    gm_from("General Insurance Apps (gen.apps.insurance@gmail.com)") %>%
+    gm_subject(title_message) %>%
+    gm_html_body(rawHTML) 
+  
+  gm_send_message(my_email_message)
+  output <- "Mail Sent"
+}
 
 #* Send Gmail JKE
 #* @param myentity Entity Type Customer or Policy or Claim
