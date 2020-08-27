@@ -436,7 +436,7 @@ function(CustomerNum, PolicyNum, ClaimDate, ClaimAmount, ClaimCause) {
   if (NewCLaimData$LGCMAREA$CA_RETURN_CODE == 0) {
     ClaimNumber <- NewCLaimData$LGCMAREA$CA_POLICY_REQUEST$CA_CLAIM$CA_C_NUM
     myentity = "Claim"
-    operation = "Created"
+    operation = "created"
     reference = ClaimNumber
     print("***********3********")
     res <- POST(paste(emailserviceurl,"sendgmailGENApps?",sep="")
