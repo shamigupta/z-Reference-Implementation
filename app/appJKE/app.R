@@ -1132,6 +1132,7 @@ server <- shinyServer(function(input, output, session) {
     
     if (!OTPGenerated) {
       OTPIN <<- str_pad(sample(1:9999,1),4,pad="0")
+      disable("withdrawalAccount")
       #AUTH_ID="MAZTI5MWUZZDY5NTCYYJ"
       #AUTH_TOKEN="YzAyM2ExNjdiOTA0YjA2NTdiNzhmOTkyOTBmZWIx"
       #account_masked <- paste(substring(basedatawithdrawal$NUMB,1,1),"X",substring(basedatawithdrawal$NUMB,3,3),"X",substring(basedatawithdrawal$NUMB,5,5),"X",sep="")
@@ -1154,9 +1155,14 @@ server <- shinyServer(function(input, output, session) {
                   ,body=list(myquerry = updatesql),
                   ,encode = "json")
       appData <- content(res)
+      if (length(appData$result) == 0) {
+        shinyalert("Warning", "Please register with JKE Bank OTP Mobile Tracker App or Check email", type = "warning",confirmButtonCol = "#7e5109")
+      } else {
+        shinyalert("Info", "OTP Pushed to JKE Bank OTP Tracker App", type = "info",confirmButtonCol = "#3F27B3")
+      }
       OTPGenerated <<- TRUE
       OTPValidated <<- FALSE
-      shinyalert("Info", "OTP Pushed to JKE Bank OTP Tracker App", type = "info",confirmButtonCol = "#3F27B3")
+      enable("withdrawalAccount")
     }
     
     add_date <- paste(as.integer(format(Sys.time(), "%d")),as.integer(format(Sys.time(), "%m")),as.integer(format(Sys.time(), "%y")))
