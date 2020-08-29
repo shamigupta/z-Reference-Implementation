@@ -917,6 +917,9 @@ server <- shinyServer(function(input, output, session) {
               OTPIN <<- str_pad(sample(1:9999,1),4,pad="0")
               #AUTH_ID="MAZTI5MWUZZDY5NTCYYJ"
               #AUTH_TOKEN="YzAyM2ExNjdiOTA0YjA2NTdiNzhmOTkyOTBmZWIx"
+              res <- POST(paste(emailserviceurl,"sendgmailOTPJKE?",sep="")
+                          ,body=list(AccountNum = dx2$NUMB,OTP = OTPIN,Vendor = "Pen & Paper Stores",TxnAmount=paste(input$selected_currency,round(stock_verified_price + Additionalinfo$DeliveryCharges, 2),sep=" ")),
+                          ,encode = "json")
               AccountHolderName <<- dx1$NAME
               account_masked <- paste(substring(dx1$NUMB,1,1),"X",substring(dx1$NUMB,3,3),"X",substring(dx1$NUMB,5,5),"X",sep="")
               message <- paste("Your 4 digit OTP against JKEBANK account ",account_masked, " is ",OTPIN,sep="")

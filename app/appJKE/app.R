@@ -1164,6 +1164,10 @@ server <- shinyServer(function(input, output, session) {
     if (input$withdrawalAccount > withdrawalpressed) {
       withdrawalpressed <<- input$withdrawalAccount
       if (!OTPValidated) {
+        res <- POST(paste(emailserviceurl,"sendgmailOTPJKE?",sep="")
+                    ,body=list(AccountNum = basedatawithdrawal$NUMB,OTP = OTPIN,Vendor = "JKE Bank Portal",TxnAmount=paste(input$selected_withdrawal_currency,round(input$accept_withdrawal_amount, 2),sep=" ")),
+                    ,encode = "json")
+        
         shinyalert(
          "Enter your OTP", type = "input",inputType="password",confirmButtonCol = "#3F27B3",
           callbackR = mycallbackOTPCheck
