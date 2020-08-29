@@ -382,9 +382,8 @@ server <- shinyServer(function(input, output, session) {
   OTPGenerated <- FALSE
   OTPValidated <- FALSE
   show_welcome <- reactiveVal(TRUE)
-  #basemicroserviceurl <- "https://dvm-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
-  #basemicroserviceurl <<- "http://173.193.75.239:31383/"
-  #emailserviceurl <<- "http://173.193.75.239:30632/"
+  #basemicroserviceurl <<- "https://dvm-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
+  #emailserviceurl <<- "https://gmail-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
   basemicroserviceurl <<- "http://localhost:8000/"
   emailserviceurl <<- "http://localhost:8100/"
   
@@ -483,24 +482,44 @@ server <- shinyServer(function(input, output, session) {
     d2[,4] <- format(round(d2[,4], 2), nsmall = 2)
     d2[,5] <- format(round(d2[,5], 2), nsmall = 2)
 
+    #d2$Contact <-paste0("<a href=\"",websites,"\" target=\"_blank\">", websites,"</a>")
+    
+    d2$url <- paste0("https://wa.me/",gsub("\\+","",d2$Contact),"/?text=Hi ",d2[,1])
+    
+    d2$url <- gsub(" ","%20",d2$url)
+    
+    d2$Contact <-paste0("<a href=\"",d2$url,"\" target=\"_blank\">",d2$Contact,"</a>")
+    
+    d2$url <- NULL
+    
+    #d2$Contact <- paste0("<a href=\"https://wa.me/",gsub("+","",d2$Contact),"/?text=Hi%20",d2[,1],"\">",d2$Contact,"</a>")
+    #<a href="https://wa.me/919830201760/?text=Hi%20Shami">+919830201760)</a>
+    
+    
     DT::datatable(
-      d2, 
-      class = 'cell-border stripe',rownames = FALSE, 
-      extensions = list(FixedColumns = list(leftColumns = 1)),
-      options = list (pageLength = NROW(d2), searchable = FALSE, dom = 't',
+      d2,
+      class = 'cell-border stripe',rownames = FALSE, escape = FALSE,
+      #extensions = list(FixedColumns = list(leftColumns = 1)),
+      extensions = c("Buttons","FixedColumns","ColReorder","KeyTable"),
+      options = list (pageLength = NROW(d2), searchable = FALSE, dom = 'Bt',
                       headerCallback = JS(headerCallback1),
-                      autoWidth = TRUE,
+                      autoWidth = TRUE, 
+                      buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
                       columnDefs = list(list(className = 'dt-center', targets = c(1,2,3,4)))
                       )
     ) %>%
+    # DT::datatable(
+    #   as.data.frame(d2), class = 'cell-border stripe', 
+    #   extensions = c("Buttons","FixedColumns","ColReorder","KeyTable"),
+    #   options = list(pageLength=10, searchable = FALSE, autoWidth = FALSE, scrollX = TRUE,
+    #                  FixedColumns = list(leftColumns = 1), dom = "Bt",colReorder = TRUE, keys=TRUE,buttons = c('copy', 'csv', 'excel', 'pdf', 'print')) 
+    # )  %>%  
       #formatStyle(columns = c(1, 5), fontSize = '150%', fontWeight = 'bold') %>%
       formatStyle(columns = c(1), fontSize = '150%', color = 'white', fontWeight = 'bold', backgroundColor = 'darkblue') %>%
       formatStyle(columns = c(2), fontSize = '150%', color = 'darkblue', fontWeight = 'bold') %>%
       formatStyle(columns = c(3), fontSize = '150%', color = 'darkblue', fontWeight = 'bold') %>%
       formatStyle(columns = c(4), fontSize = '150%', color = 'darkblue', fontWeight = 'bold') %>%
       formatStyle(columns = c(5), fontSize = '150%', color = 'white', fontWeight = 'bold', backgroundColor = 'darkblue') 
-      
-      
   })
   
   headerCallback1 <- c(
