@@ -370,6 +370,8 @@ server <- shinyServer(function(input, output, session) {
   PaymentTable <<- data.frame(BankName=as.character(),BankAccountUsed=as.character(),AccountHolderName=as.character(),DebitTxn=as.numeric(),CreditTxn=as.numeric(),TxnCurrency=as.character(),stringsAsFactors=FALSE)
   #basemicroserviceurl <<- "https://route2-ref-impl-zsandbox.zdev-1591878922444-f72ef11f3ab089a8c677044eb28292cd-0000.us-east.containers.appdomain.cloud/"
   #basemicroserviceurl <<- "http://173.193.75.239:30833/"
+  #basemicroserviceurl <<- "http://173.193.75.239:31701/"
+  #emailserviceurl <<- "http://173.193.75.239:31058/"
   basemicroserviceurl <<- "http://localhost:8000/"
   emailserviceurl <<- "http://localhost:8100/"
   
@@ -920,6 +922,7 @@ server <- shinyServer(function(input, output, session) {
               res <- POST(paste(emailserviceurl,"sendgmailOTPJKE?",sep="")
                           ,body=list(AccountNum = dx1$NUMB,OTP = OTPIN,Vendor = "Pen & Paper Stores",TxnAmount=paste(input$selected_currency,round(stock_verified_price + Additionalinfo$DeliveryCharges, 2),sep=" ")),
                           ,encode = "json")
+              OTPMailStatus <- content(res)
               AccountHolderName <<- dx1$NAME
               account_masked <- paste(substring(dx1$NUMB,1,1),"X",substring(dx1$NUMB,3,3),"X",substring(dx1$NUMB,5,5),"X",sep="")
               message <- paste("Your 4 digit OTP against JKEBANK account ",account_masked, " is ",OTPIN,sep="")
@@ -934,8 +937,16 @@ server <- shinyServer(function(input, output, session) {
               appData <- content(res)
               if (length(appData$result) == 0) {
                 shinyalert("Error", "Please register with JKE Bank OTP Mobile Tracker App", type = "error",confirmButtonCol = "#E74C3C")
-                disable("RetrieveAccount")
-                return("Mobile not registered for online Payment")
+                if (OTPMailStatus == "Mail Sent") {
+                  enable("RetrieveAccount")
+                  OTPGenerated <<- TRUE
+                  OTPValidated <<- FALSE
+                  shinyalert("Info", "Mobile not registered for online Payment - Check email instead", type = "info",confirmButtonCol = "#3F27B3")
+                  return("Press Enter OTP to continue Payment")
+                } else {
+                  disable("RetrieveAccount")
+                  return("Mobile not registered for online Payment")
+                }
               }
               else {
                 newOTP_TS <- fromJSON("http://worldtimeapi.org/api/timezone/Etc/UTC")$unixtime
