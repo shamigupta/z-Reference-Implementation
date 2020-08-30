@@ -45,10 +45,9 @@ ui <- dashboardPage(
     #img(align = "middle", src = "JKEBankLogo.png", height = 140, style="opacity: 0.7;"),
     br(),
     HTML('<center><font size="2"><b>This portal is a containerized shiny R application that consumes APIs from Mainframe CICS and integrates with other APIs. <a href="https://www.ibm.com/support/knowledgecenter/SSYMRC_5.0.2/com.ibm.help.common.jazz.calm.doc/topics/s_mtm_sample.html" target=_blank>JKE Banking</a> example project is shipped with Rational CLM.</b></font><width="150"></center>'),
-    br(),
     HTML('<center><font size="2"><b>For more info, contact</b></font><width="150"></center>'),
     HTML('<center><font size="2"><b><a href="mailto:shami.gupta@in.ibm.com">Shami Gupta</a></b></font><width="150"></center>'),
-    br()
+    actionButton("ViewArchitecture", label = "View Architecture",width='80%',style="font-size: large; font-weight: bold; color: yellow; background-color: darkblue")
   ),
   dashboardBody(
     tags$img(
@@ -498,7 +497,7 @@ server <- shinyServer(function(input, output, session) {
     
     DT::datatable(
       d2,
-      class = 'cell-border stripe',rownames = FALSE, escape = FALSE,
+      class = 'cell-border stripe',rownames = FALSE, escape = FALSE, selection = "single",
       #extensions = list(FixedColumns = list(leftColumns = 1)),
       extensions = c("Buttons","FixedColumns","ColReorder","KeyTable"),
       options = list (pageLength = NROW(d2), searchable = FALSE, dom = 'Bt',
@@ -1283,6 +1282,22 @@ server <- shinyServer(function(input, output, session) {
       OTPValidated <<- FALSE
     }
   }
+  
+  observeEvent(input$ViewArchitecture, {
+    readRenviron("../.env")
+    cloudtype <- tolower(gsub("[^[:alpha:]]", "", Sys.getenv("CloudType")))
+    outfile = paste("./www/",cloudtype,".jpg",sep="")
+    showModal(modalDialog(
+      title = h4("Architecture"),
+      size ="l",
+      renderImage({
+        list(src = outfile, contentType = 'image/png',width = 860, height = 420)
+      }, deleteFile = FALSE),
+      easyClose = FALSE,
+      footer = modalButton("Dismiss")
+    )
+    )
+  })
   
   
     

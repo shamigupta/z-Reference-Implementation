@@ -2710,16 +2710,7 @@ observeEvent(input$table_claimstatus_cr, {
   savedstatus <<- input$table_claimstatus_cr
   updateTabItems(session, "tabs", "dashboard3")
 })
-
-  
-  
-  
-  
-  
-  
-#############################################
-
-  observeEvent(input$ViewArchitecture, {
+observeEvent(input$ViewArchitecture, {
     readRenviron("../.env")
     cloudtype <- tolower(gsub("[^[:alpha:]]", "", Sys.getenv("CloudType")))
     outfile = paste("./www/",cloudtype,".jpg",sep="")
@@ -2732,13 +2723,9 @@ observeEvent(input$table_claimstatus_cr, {
        #HTML('<img src="GenAppsArchitecturev1.jpg" width="860">'),
        easyClose = FALSE,
        footer = modalButton("Dismiss")
-     ))
-    
-    #shinyalert("", imageUrl = "P&PArchitecture.jpg", imageWidth = 1000,imageHeight = 1000, type = "info",confirmButtonCol = "#3F27B3")
-  
-  })
-  
-
+     )
+    )
+})
     
 })
 
