@@ -1132,22 +1132,7 @@ server <- shinyServer(function(input, output, session) {
     if (!OTPGenerated) {
       OTPIN <<- str_pad(sample(1:9999,1),4,pad="0")
       disable("withdrawalAccount")
-      #AUTH_ID="MAZTI5MWUZZDY5NTCYYJ"
-      #AUTH_TOKEN="YzAyM2ExNjdiOTA0YjA2NTdiNzhmOTkyOTBmZWIx"
-      #account_masked <- paste(substring(basedatawithdrawal$NUMB,1,1),"X",substring(basedatawithdrawal$NUMB,3,3),"X",substring(basedatawithdrawal$NUMB,5,5),"X",sep="")
-      #message <- paste("Your 4 digit OTP against JKEBANK account ",account_masked, " is ",OTPIN,sep="")
       target_no <- gsub("\\+","",basedatawithdrawal$PHONE)
-      #url="https://api.plivo.com/v1/Account/MAZTI5MWUZZDY5NTCYYJ/Message/"
-      #x <- POST(url,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src="919830201760",dst="916290938787",text=message))
-      #x <- POST(smsurl,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src=basemobilenumber,dst=target_no,text=message))
-      #if(x[[2]] == 400){
-      #  shinyalert("Error", "Please register Mobile Number", type = "error",confirmButtonCol = "#E74C3C")
-      #  disable("withdrawalAccount")
-      #  return("Mobile setup needed")
-      #}
-      #else {
-      #  enable("withdrawalAccount")
-      #}
       newOTP_TS <- fromJSON("http://worldtimeapi.org/api/timezone/Etc/UTC")$unixtime
       updatesql <- paste ("UPDATE IDZPOT.OTP_PROCESS SET OTP = ", OTPIN, ", OTP_TS = ", newOTP_TS, " WHERE MOBILE_NO = ",target_no,sep="")
       res <- POST(paste(basemicroserviceurl,"getDB2zEUSDocker?",sep="")
@@ -1246,22 +1231,8 @@ server <- shinyServer(function(input, output, session) {
           refreshbalancewithdrawal(newrefreshbalancewithdrawal)
         }
         shinyalert("Success", "Withdrawal Request processed", type = "success",confirmButtonCol = "#54BA60")
-        #shinyalert("Success", "Withdrawal Request processed", type = "success")
         #OTPGenerated <<- FALSE
         disable("withdrawalAccount")
-        #AUTH_ID="MAZTI5MWUZZDY5NTCYYJ"
-        #AUTH_TOKEN="YzAyM2ExNjdiOTA0YjA2NTdiNzhmOTkyOTBmZWIx"
-        # account_masked <- paste(substring(basedatawithdrawal$NUMB,1,1),"X",substring(basedatawithdrawal$NUMB,3,3),"X",substring(basedatawithdrawal$NUMB,5,5),"X",sep="")
-        # message <- paste("An amount of ", input$selected_withdrawal_currency, " ", input$accept_withdrawal_amount, " was debited from JKEBank account number ", account_masked, ". The updated balance is ", basedatawithdrawal$AMOUNT,sep="")
-        # target_no <- gsub("\\+","",basedatawithdrawal$PHONE)
-        # #url="https://api.plivo.com/v1/Account/MAZTI5MWUZZDY5NTCYYJ/Message/"
-        # x <- POST(smsurl,authenticate(AUTH_ID,AUTH_TOKEN),body=list(src=basemobilenumber,dst=target_no,text=message))
-        # if(x[[2]] == 400){
-        #   shinyalert("Warning", "Withdrawal Request processed - But cannot send sms. Please register your mobile", type = "warning",confirmButtonCol = "#E74C3C")
-        # }else {
-        #   shinyalert("Success", "Withdrawal Request processed", type = "success",confirmButtonCol = "#54BA60")
-        # }
-        #SGAug2020
         return("withdrawal accepted")
       }
       
