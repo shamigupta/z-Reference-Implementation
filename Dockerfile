@@ -3,7 +3,6 @@ FROM ashish1981/x86-rbase-shiny-plumber
 #copy application
 COPY /app /srv/shiny-server/
 #
-#
 # Copy configuration files into the Docker image
 COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
 COPY shiny-server.sh /usr/bin/shiny-server.sh
