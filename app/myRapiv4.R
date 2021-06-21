@@ -37,7 +37,7 @@ function(a, b){
 #* @param myentity Entity Type Customer or Policy or Claim
 #* @param operation Operation created deleted updated settled
 #* @param reference Customer num or Policy Num or Claim Num
-#* @post /sendgmailGENAppsOld
+#* @post /sendgmailGENApps
 function(myentity, operation, reference){
   
   readRenviron("/srv/shiny-server/.env")
